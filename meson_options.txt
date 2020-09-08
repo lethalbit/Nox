@@ -1,0 +1,31 @@
+option(
+	'line_editor',
+	type: 'combo',
+	choices: [
+		'editline',
+		'readline'
+	],
+	value: 'editline',
+	description: 'Line editing library to use for the CLI'
+)
+
+option(
+	'bugreport_url',
+	type: 'string',
+	value: 'https://github.com/lethalbit/Nox/issues',
+	description: 'URL for bug report submissions'
+)
+
+option(
+	'enable_cli',
+	type: 'boolean',
+	value: true,
+	description: 'Enables the nox-cli'
+)
+
+option(
+	'enable_gui',
+	type: 'boolean',
+	value: true,
+	description: 'Enables the nox-gui'
+)
