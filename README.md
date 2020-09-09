@@ -45,8 +45,6 @@ To change the install prefix, which is `/usr/local` by default ensure to pass `-
 
 In either case, simpling running `meson build` from the root of the repository will be sufficient and place all of the build files in the `build` subdirectory.
 
-**NOTE**: All targets and interfaces may not be enabled by default, ensure that the target and the applicable interfaces you want to use are enabled in the `targets` and `interfaces` configuration options. Only the valid options that are listed there are supported. For a full list of supported interfaces and targets see the table(s) in the sections above.
-
 ### Building
 
 Once you have configured Nox appropriately, to simply build and install simply run the following:
