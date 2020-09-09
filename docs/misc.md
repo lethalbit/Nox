@@ -34,3 +34,12 @@ This can be fixed by making the FD that is opened here persistent but I can't be
 As mentioned prior when you exit `wireshark` you'll either need to `^C` a few time in the prompt or kill `tshark` on the hypervisor to close the socket.
 
 The line `-Y "not smb && not smb2 && not ssdp && not arp && not nbns && not llmnr"` is a display filter to ignore all of the noise that Windows tends to generate by just existing.
+
+
+## Misc misc
+
+If you wish to have the modules print their IP and subnet mask to the embedded display, simply sent a single ICMP ping packet to your broadcast address with a `ttl` of 1, an ICMP sequence number of 0, and the data of the packet being 32 capital ASCII E's, the nping command below will do that for you.
+
+```
+nping -c 1 10.255.255.255 --icmp-seq 0 --ttl 1 --data-string "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+```
