@@ -51,6 +51,7 @@ function metadata_proto.dissector(buffer, pinfo, tree)
 			pair_tree:add(info_value, pair[2])
 		end
 	end
+   pinfo.cols.info = string.format("%i key-value pair(s)", #entries - 1)
 	subtree:add(info_raw, buffer(0))
 end
 
