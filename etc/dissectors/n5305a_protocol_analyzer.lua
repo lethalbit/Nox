@@ -64,6 +64,7 @@ local function contains(t, v)
 end
 
 function add_message(buffer, tree)
+	if buffer:len() < 4 then return 0 end
 	local str_len = buffer(0, 4)
 	local len = str_len:uint(4)
 	local msg_text = buffer(4, len):string(base.ASCII)
@@ -97,26 +98,59 @@ function extract_flags(buffer, pinfo, substree)
 	message_flags:add(flag_f, bit32.extract(raw_flag, 15))
 end
 
-function from(buffer, pinfo, substree)
-	substree:add(pa_unkgen, buffer(8, 4))
-	substree:add(pa_unkgen, buffer(12, 4))
-	substree:add(pa_unkgen, buffer(16, 4))
-	substree:add(pa_unkgen, buffer(20, 4))
-	substree:add(pa_unkgen, buffer(24, 4))
+function from(buffer, pkt_type_raw, substree)
+	local entries = buffer:len() / 4
+	for i = 0, entries - 1, 1 do
+	    substree:add(pa_unkgen, buffer((i * 4), 4))
+	end
 end
 
-function to(buffer, pinfo, substree)
-	local pkt_type_raw = buffer(2, 2):uint(2)
+function to(buffer, pkt_type_raw, substree)
+	local len = buffer:len()
 	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
 	padd_offset = 0
 
-	if contains(padded_packets, pkt_type_raw) then
-		padd_offset = 24
+	if contains(padded_packets, pkt_type_raw) == true then
+		padd_offset = 16
 	end
 
-	-- while padd_offset > 0 do
-		padd_offset = add_message(buffer:range(padd_offset):tvb(), messages) + padd_offset
+
+
+	-- while padd_offset <= buffer:len() do
+		print("\n\n\n\n\n")
+		offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+		offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+		padd_offset = offset_inc + padd_offset
+		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+		-- if padd_offset>= buffer:len() then break end
 	-- end
+
 end
 
 function protocol_analyzer.dissector(buffer, pinfo, tree)
@@ -139,11 +173,11 @@ function protocol_analyzer.dissector(buffer, pinfo, tree)
 	if pinfo.src_port == 1029 then
 		pkt_dir = "To Host"
 		substree:add(pkt_direction, pkt_dir)
-		from(buffer, pinfo, substree)
+		from(buffer:range(8):tvb(), pkt_type_raw, substree)
 	else
 		pkt_dir = "To Analyzer"
 		substree:add(pkt_direction, pkt_dir)
-		to(buffer, pinfo, substree)
+		to(buffer:range(8):tvb(), pkt_type_raw, substree)
 	end
 
 
