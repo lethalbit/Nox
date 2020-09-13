@@ -16,7 +16,7 @@ flag_b = ProtoField.bool("n5305a.protocol_analyzer.flags.flagb", "Flag B", base.
 flag_c = ProtoField.bool("n5305a.protocol_analyzer.flags.flagc", "Flag C", base.NONE)
 flag_d = ProtoField.bool("n5305a.protocol_analyzer.flags.flagd", "Flag D", base.NONE)
 flag_e = ProtoField.bool("n5305a.protocol_analyzer.flags.flage", "Flag E", base.NONE)
-flag_f = ProtoField.bool("n5305a.protocol_analyzer.flags.flagf", "Flag F", base.NONE)
+analyzer_cfg_message = ProtoField.bool("n5305a.protocol_analyzer.flags.analyzer_cfg_message", "Analyzer Config Message", base.NONE)
 
 pkt_direction = ProtoField.string("n5305a.protocol_analyzer.packet.direction", "Packet Direction", base.ASCII)
 pkt_type = ProtoField.uint16("n5305a.protocol_analyzer.packet.type", "Type", base.HEX)
@@ -47,7 +47,7 @@ protocol_analyzer.fields = {
 	flag_c,
 	flag_d,
 	flag_e,
-	flag_f,
+	analyzer_cfg_message,
 
 	pkt_type, pkt_direction, unk1, cookie, message, message_len, pa_raw, pa_unkgen }
 
@@ -95,7 +95,7 @@ function extract_flags(buffer, pinfo, substree)
 	message_flags:add(flag_c, bit32.extract(raw_flag, 12))
 	message_flags:add(flag_d, bit32.extract(raw_flag, 13))
 	message_flags:add(flag_e, bit32.extract(raw_flag, 14))
-	message_flags:add(flag_f, bit32.extract(raw_flag, 15))
+	message_flags:add(analyzer_cfg_message, bit32.extract(raw_flag, 15))
 end
 
 function from(buffer, pkt_type_raw, substree)
