@@ -1,8 +1,8 @@
 broadcast_proto = Proto("N5305A_Broadcast", "N5305A Broadcast")
 
-boot_seq = ProtoField.uint32("n5305a.boot_seq", "Boot Sequence Number", base.HEX)
-serial_number = ProtoField.string("n5305a.serial_number", "Serial Number", base.ASCII)
-raw = ProtoField.bytes("n5305a.broadcast_raw", "Broadcast Raw", base.SPACE)
+boot_seq = ProtoField.uint32("n5305a.broadcast.boot_seq", "Boot Sequence Number", base.HEX)
+serial_number = ProtoField.string("n5305a.broadcast.serial_number", "Serial Number", base.ASCII)
+raw = ProtoField.bytes("n5305a.broadcast.raw", "Broadcast Raw", base.SPACE)
 
 broadcast_proto.fields = { boot_seq, serial_number, raw }
 

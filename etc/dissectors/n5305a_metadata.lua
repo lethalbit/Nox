@@ -1,8 +1,8 @@
 metadata_proto = Proto("N5305A_Metadata", "N5305A Metadata")
 
-info_key = ProtoField.string("n5305a.metadata_key", "Metadata Key", base.ASCII)
-info_value = ProtoField.string("n5305a.metadata_value", "Metadata Value", base.ASCII)
-info_raw = ProtoField.bytes("n5305a.metadata_raw", "Metadata Raw", base.SPACE)
+info_key = ProtoField.string("n5305a.metadata.key", "Metadata Key", base.ASCII)
+info_value = ProtoField.string("n5305a.metadata.value", "Metadata Value", base.ASCII)
+info_raw = ProtoField.bytes("n5305a.metadata.raw", "Metadata Raw", base.SPACE)
 
 metadata_proto.fields = { info_key, info_value, info_raw }
 
