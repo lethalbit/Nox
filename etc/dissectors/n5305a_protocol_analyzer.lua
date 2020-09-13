@@ -20,12 +20,15 @@ flag_f = ProtoField.bool("n5305a.protocol_analyzer.flags.flagf", "Flag F", base.
 
 pkt_direction = ProtoField.string("n5305a.protocol_analyzer.packet.direction", "Packet Direction", base.ASCII)
 pkt_type = ProtoField.uint16("n5305a.protocol_analyzer.packet.type", "Type", base.HEX)
-counter = ProtoField.uint32("n5305a.protocol_analyzer.counter", "Counter", base.HEX)
+
+unk1 = ProtoField.uint16("n5305a.protocol_analyzer.unk1", "unk1", base.HEX)
+cookie = ProtoField.uint16("n5305a.protocol_analyzer.cookie", "Cookie", base.HEX)
 message = ProtoField.string("n5305a.protocol_analyzer.message", "Message", base.ASCII)
 message_len = ProtoField.uint32("n5305a.protocol_analyzer.message_len", "Message Length", base.HEX)
 
 pa_raw = ProtoField.bytes("n5305a.protocol_analyzer.raw", "Raw", base.SPACE)
 
+pa_unkgen = ProtoField.bytes("n5305a.protocol_analyzer.unkgen", "Unk", base.SPACE)
 
 protocol_analyzer.fields = {
 	flags,
@@ -46,7 +49,7 @@ protocol_analyzer.fields = {
 	flag_e,
 	flag_f,
 
-	pkt_type, pkt_direction, counter, message, message_len, pa_raw }
+	pkt_type, pkt_direction, unk1, cookie, message, message_len, pa_raw, pa_unkgen }
 
 
 local padded_packets = {  0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
@@ -95,16 +98,20 @@ function extract_flags(buffer, pinfo, substree)
 end
 
 function from(buffer, pinfo, substree)
-
+	substree:add(pa_unkgen, buffer(8, 4))
+	substree:add(pa_unkgen, buffer(12, 4))
+	substree:add(pa_unkgen, buffer(16, 4))
+	substree:add(pa_unkgen, buffer(20, 4))
+	substree:add(pa_unkgen, buffer(24, 4))
 end
 
 function to(buffer, pinfo, substree)
 	local pkt_type_raw = buffer(2, 2):uint(2)
 	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
+	padd_offset = 0
+
 	if contains(padded_packets, pkt_type_raw) then
 		padd_offset = 24
-	else
-		padd_offset = 0
 	end
 
 	-- while padd_offset > 0 do
@@ -124,7 +131,8 @@ function protocol_analyzer.dissector(buffer, pinfo, tree)
 
 	local pkt_type_raw = buffer(2, 2):uint(2)
 	substree:add(pkt_type, buffer(2, 2))
-	substree:add(counter, buffer(4, 4))
+	substree:add(unk1, buffer(4, 2))
+	substree:add(cookie, buffer(6, 2))
 
 
 	pkt_dir = ""
@@ -138,9 +146,8 @@ function protocol_analyzer.dissector(buffer, pinfo, tree)
 		to(buffer, pinfo, substree)
 	end
 
-	pinfo.cols.info = string.format("%s. Size: %i", pkt_dir, len)
 
-
+	pinfo.cols.info = string.format("%s - Cookie: 0x%04X Size: %i", pkt_dir, buffer(6, 2):uint(2), len)
 	substree:add(pa_raw, buffer(0))
 
 end
