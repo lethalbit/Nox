@@ -23,6 +23,7 @@ pkt_len = ProtoField.uint16("n5305a.protocol_analyzer.packet.length", "Length", 
 
 unk1 = ProtoField.uint16("n5305a.protocol_analyzer.unk1", "unk1", base.HEX)
 cookie = ProtoField.uint16("n5305a.protocol_analyzer.cookie", "Cookie", base.HEX)
+padding = ProtoField.bytes("n5305a.protocol_analyzer.padding", "Padding", base.SPACE)
 message = ProtoField.string("n5305a.protocol_analyzer.message", "Message", base.ASCII)
 message_len = ProtoField.uint32("n5305a.protocol_analyzer.message_len", "Message Length", base.HEX)
 
@@ -49,7 +50,7 @@ protocol_analyzer.fields = {
 	flag_e,
 	analyzer_cfg_message,
 
-	pkt_len, pkt_direction, unk1, cookie, message, message_len, pa_raw, pa_unkgen }
+	pkt_len, pkt_direction, unk1, cookie, padding, message, message_len, pa_raw, pa_unkgen }
 
 
 local padded_packets = {  0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
@@ -107,15 +108,14 @@ end
 
 function to(buffer, pkt_len_raw, substree)
 	local len = buffer:len()
-	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
 	padd_offset = 0
 
 	if contains(padded_packets, pkt_len_raw) == true then
 		padd_offset = 16
+		substree:add(padding, buffer(0, padd_offset))
 	end
 
-
-
+	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
 	-- while padd_offset <= buffer:len() do
 		print("\n\n\n\n\n")
 		offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
