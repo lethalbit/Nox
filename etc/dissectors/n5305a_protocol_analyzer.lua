@@ -79,8 +79,8 @@ function add_message(buffer, tree)
 	return (len + bit32.band((4 - (len % 4)), 3)) + 4
 end
 
-function extract_flags(buffer, pinfo, substree)
-	local message_flags = substree:add(flags, buffer(0, 2))
+function extract_flags(buffer, pinfo, subtree)
+	local message_flags = subtree:add(flags, buffer(0, 2))
 	local raw_flag = buffer(0, 2):uint(2)
 	message_flags:add(flag_0, bit32.extract(raw_flag, 0))
 	message_flags:add(flag_1, bit32.extract(raw_flag, 1))
