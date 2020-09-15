@@ -108,7 +108,7 @@ function from(buffer, pkt_len_raw, substree)
 	end
 end
 
-function to(buffer, pkt_len_raw, substree)
+function to(buffer, pkt_len_raw, subtree)
 	local len = buffer:len()
 	padd_offset = 0
 
@@ -118,41 +118,41 @@ function to(buffer, pkt_len_raw, substree)
 	-- 	subtree:add(padding, buffer(0, padd_offset))
 	-- end
 
-	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
-	-- while padd_offset <= buffer:len() do
-		print("\n\n\n\n\n")
-		offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-		offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-				offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
-		padd_offset = offset_inc + padd_offset
-		print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
-		-- if padd_offset>= buffer:len() then break end
-	-- end
+	-- local messages = subtree:add(protocol_analyzer, buffer(), "Messages")
+	-- -- while padd_offset <= buffer:len() do
+	-- 	print("\n\n\n\n\n")
+	-- 	offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 	offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 			offset_inc = add_message(buffer:range(padd_offset):tvb(), messages)
+	-- 	padd_offset = offset_inc + padd_offset
+	-- 	print(string.format("Padding: %i, Offset: %i, Buffer Len: %i", padd_offset, offset_inc, len))
+	-- 	-- if padd_offset>= buffer:len() then break end
+	-- -- end
 
 end
 
