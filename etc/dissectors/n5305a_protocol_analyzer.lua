@@ -162,31 +162,51 @@ function protocol_analyzer.dissector(buffer, pinfo, tree)
 
 	pinfo.cols.protocol = "N5305A Protocol Analyzer"
 
-	local substree = tree:add(protocol_analyzer, buffer(), "N5305A Protocol Analyzer")
-
-	extract_flags(buffer, pinfo, substree)
-
-	local pkt_len_raw = buffer(2, 2):uint(2)
-	substree:add(pkt_len, buffer(2, 2))
-	substree:add(unk1, buffer(4, 2))
-	substree:add(cookie, buffer(6, 2))
-
+	local subtree = tree:add(protocol_analyzer, buffer(), "N5305A Protocol Analyzer")
 
 	pkt_dir = ""
 	if pinfo.src_port == 1029 then
 		pkt_dir = "To Host"
-		substree:add(pkt_direction, pkt_dir)
-		from(buffer:range(8):tvb(), pkt_len_raw, substree)
 	else
 		pkt_dir = "To Analyzer"
-		substree:add(pkt_direction, pkt_dir)
-		to(buffer:range(8):tvb(), pkt_len_raw, substree)
+	end
+	subtree:add(pkt_direction, pkt_dir)
+
+	if pinfo.src_port == 1029 then
+	else
+		if frame_remainder ~= 0 then
+			frame_remainder = frame_remainder - len
+			subtree:add(raw_data, buffer(0))
+			pinfo.cols.info = string.format("%s - Frame continuation, Size: %i", pkt_dir, len)
+			return
+		end
 	end
 
+	local flags = extract_flags(buffer, pinfo, subtree)
+
+	local pkt_len_raw = buffer(2, 2):uint(2)
+	subtree:add(pkt_len, buffer(2, 2))
+	subtree:add(unk1, buffer(4, 2))
+	subtree:add(cookie, buffer(6, 2))
+
+	if pinfo.src_port == 1029 then
+	else
+		if bit32.extract(flags, 15) == 0 then
+			frame_remainder = pkt_len_raw - (len - 4)
+			print("frame remainder is ", frame_remainder)
+		else
+			frame_remainder = 0
+		end
+	end
+
+	if pinfo.src_port == 1029 then
+		from(buffer:range(8):tvb(), pkt_len_raw, subtree)
+	else
+		to(buffer:range(4):tvb(), pkt_len_raw, subtree)
+	end
 
 	pinfo.cols.info = string.format("%s - Cookie: 0x%04X Size: %i", pkt_dir, buffer(6, 2):uint(2), len)
-	substree:add(pa_raw, buffer(0))
-
+	subtree:add(pa_raw, buffer(0))
 end
 
 local tcp_port = DissectorTable.get("tcp.port")
