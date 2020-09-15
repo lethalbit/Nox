@@ -56,9 +56,6 @@ protocol_analyzer.fields = {
 -- local padded_packets = { 0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
 local frame_remainder = 0
 
-
-local padded_packets = {  0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
-
 local function contains(t, v)
     for i, value in ipairs(t) do
         if value == v then
