@@ -16,16 +16,16 @@ flag_b = ProtoField.bool("n5305a.protocol_analyzer.flags.flagb", "Flag B", base.
 flag_c = ProtoField.bool("n5305a.protocol_analyzer.flags.flagc", "Flag C", base.NONE)
 flag_d = ProtoField.bool("n5305a.protocol_analyzer.flags.flagd", "Flag D", base.NONE)
 flag_e = ProtoField.bool("n5305a.protocol_analyzer.flags.flage", "Flag E", base.NONE)
-analyzer_cfg_message = ProtoField.bool("n5305a.protocol_analyzer.flags.analyzer_cfg_message", "Analyzer Config Message", base.NONE)
+transaction_complete = ProtoField.bool("n5305a.protocol_analyzer.flags.transaction_complete", "Transaction Complete", base.NONE)
 
 pkt_direction = ProtoField.string("n5305a.protocol_analyzer.packet.direction", "Packet Direction", base.ASCII)
 pkt_len = ProtoField.uint16("n5305a.protocol_analyzer.packet.length", "Length", base.HEX)
 
 unk1 = ProtoField.uint16("n5305a.protocol_analyzer.unk1", "unk1", base.HEX)
 cookie = ProtoField.uint16("n5305a.protocol_analyzer.cookie", "Cookie", base.HEX)
-padding = ProtoField.bytes("n5305a.protocol_analyzer.padding", "Padding", base.SPACE)
-message = ProtoField.string("n5305a.protocol_analyzer.message", "Message", base.ASCII)
-message_len = ProtoField.uint32("n5305a.protocol_analyzer.message_len", "Message Length", base.HEX)
+raw_data = ProtoField.bytes("n5305a.protocol_analyzer.raw_data", "Raw Data", base.SPACE)
+--message = ProtoField.string("n5305a.protocol_analyzer.message", "Message", base.ASCII)
+--message_len = ProtoField.uint32("n5305a.protocol_analyzer.message_len", "Message Length", base.HEX)
 
 pa_raw = ProtoField.bytes("n5305a.protocol_analyzer.raw", "Raw", base.SPACE)
 
@@ -48,9 +48,13 @@ protocol_analyzer.fields = {
 	flag_c,
 	flag_d,
 	flag_e,
-	analyzer_cfg_message,
+	transaction_complete,
 
-	pkt_len, pkt_direction, unk1, cookie, padding, message, message_len, pa_raw, pa_unkgen }
+	pkt_len, pkt_direction, unk1, cookie, raw_data, pa_raw, pa_unkgen }
+	-- message, message_len
+
+-- local padded_packets = { 0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
+local frame_remainder = 0
 
 
 local padded_packets = {  0x0058, 0x0068, 0x005c, 0x004c, 0x0050, 0x0054 }
@@ -96,7 +100,8 @@ function extract_flags(buffer, pinfo, substree)
 	message_flags:add(flag_c, bit32.extract(raw_flag, 12))
 	message_flags:add(flag_d, bit32.extract(raw_flag, 13))
 	message_flags:add(flag_e, bit32.extract(raw_flag, 14))
-	message_flags:add(analyzer_cfg_message, bit32.extract(raw_flag, 15))
+	message_flags:add(transaction_complete, bit32.extract(raw_flag, 15))
+	return raw_flag
 end
 
 function from(buffer, pkt_len_raw, substree)
@@ -110,10 +115,11 @@ function to(buffer, pkt_len_raw, substree)
 	local len = buffer:len()
 	padd_offset = 0
 
-	if contains(padded_packets, pkt_len_raw) == true then
-		padd_offset = 16
-		substree:add(padding, buffer(0, padd_offset))
-	end
+	subtree:add(raw_data, buffer(0))
+	-- if contains(padded_packets, pkt_len_raw) == true then
+	-- 	padd_offset = 16
+	-- 	subtree:add(padding, buffer(0, padd_offset))
+	-- end
 
 	local messages = substree:add(protocol_analyzer, buffer(), "Messages")
 	-- while padd_offset <= buffer:len() do
