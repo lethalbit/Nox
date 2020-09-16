@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include "dissector.h"
 
+static const char *const dirHostStr = "To Host";
+static const char *const dirAnalyzerStr = "To Analyzer";
+
 uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 {
 	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFlags, hfFlags, ENC_BIG_ENDIAN);
@@ -42,7 +45,6 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer");
 	proto_item *protocol;
 	proto_tree *subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305A, &protocol, "N5305A Protocol Analyzer");
-	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
 
 	const uint16_t flags = extractFlags(buffer, subtree);
 	uint32_t packetLength;
