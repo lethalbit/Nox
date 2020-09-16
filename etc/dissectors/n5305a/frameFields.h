@@ -23,6 +23,7 @@ static const int *hfFlags[17] =
 };
 static int hfPacketDirection = -1;
 static int hfPacketLength = -1;
+static int hfFrameData = -1;
 
 static int32_t *ett[] =
 {
@@ -163,6 +164,13 @@ static hf_register_info fields[] =
 		{
 			"Length", "n5305a.frame.length",
 			FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameData,
+		{
+			"Frame Data", "n5305a.frame.frame_data",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		}
 	}
 };

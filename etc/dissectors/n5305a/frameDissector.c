@@ -28,6 +28,7 @@ static int disectN5305AFraming(tvbuff_t *const buffer, packet_info *const pinfo,
 		// TODO: properly handle the frame rebuild.
 	}
 
+	proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
 	return len;
 }
 
