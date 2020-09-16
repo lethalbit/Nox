@@ -12,6 +12,7 @@ extern int hfFlagsType;
 extern const int *hfFlags[17];
 extern int hfPacketDirection;
 extern int hfPacketLength;
+extern int hfRawData;
 
 extern const char *const dirHostStr;
 extern tvbuff_t *dirHost;

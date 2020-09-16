@@ -24,5 +24,7 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 	const uint16_t flags = extractFlags(buffer, subtree);
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 
+	proto_tree_add_item(subtree, hfRawData, buffer, 4, -1, ENC_NA);
+
 	return len;
 }

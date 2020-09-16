@@ -23,6 +23,7 @@ const int *hfFlags[17] =
 };
 int hfPacketDirection = -1;
 int hfPacketLength = -1;
+int hfRawData = -1;
 
 gint *ett[] =
 {
@@ -165,6 +166,13 @@ static hf_register_info fields[] =
 		{
 			"Length", "n5305a.protocol_analyzer.packet.length",
 			FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfRawData,
+		{
+			"Raw Data", "n5305a.protocol_analyzer.raw_data",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		}
 	}
 };
