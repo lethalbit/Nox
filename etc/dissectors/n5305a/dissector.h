@@ -17,9 +17,4 @@ extern int hfCookie;
 extern int hfStatus;
 extern int hfRawData;
 
-extern const char *const dirHostStr;
-extern tvbuff_t *dirHost;
-extern const char *const dirAnalyzerStr;
-extern tvbuff_t *dirAnalyzer;
-
 #endif /*N5305A_DISSESCTOR__H*/
