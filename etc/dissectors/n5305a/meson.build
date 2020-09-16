@@ -1,5 +1,5 @@
 n5305a_srcs = [
-	'n5305a.c', 'dissector.c'
+	'n5305a.c', 'frameDissector.c', 'transactDissector.c'
 ]
 
 shared_library(

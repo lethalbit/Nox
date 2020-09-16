@@ -1,5 +1,4 @@
-#include <stdint.h>
-#include "frameDissector.h"
+#include "dissectors.h"
 #include "frameFields.h"
 
 static int disectN5305AFraming(tvbuff_t *const buffer, packet_info *const pinfo,
@@ -14,7 +13,7 @@ static int disectN5305AFraming(tvbuff_t *const buffer, packet_info *const pinfo,
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
 	proto_item *protocol;
-	proto_tree *subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
+	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
 		&protocol, "N5305A Protocol Analyzer Frame");
 	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
 
