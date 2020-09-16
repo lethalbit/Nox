@@ -25,7 +25,6 @@ uint16_t disectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo, proto_
 
 int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const data)
 {
-	uint32_t packetLength;
 	const uint32_t len = tvb_captured_length(buffer);
 	(void)data;
 
@@ -34,11 +33,14 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer");
-	proto_tree *subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305A, NULL, "N5305A Protocol Analyzer");
+	proto_item *protocol;
+	proto_tree *subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305A, &protocol, "N5305A Protocol Analyzer");
 	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
 
 	const uint16_t flags = extractFlags(buffer, subtree);
+	uint32_t packetLength;
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
+	proto_item_append_text(protocol, ", Len: %u", packetLength);
 
 	const uint32_t remainder = packetLength - (len - 4);
 	if (remainder)
