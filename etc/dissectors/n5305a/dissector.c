@@ -23,6 +23,13 @@ uint16_t disectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo, proto_
 	return flags & 0x8000U ? 8 : 4;
 }
 
+uint16_t disectHost(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const subtree,
+	const char *const dir, const uint16_t packetLength)
+{
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Size: %hu", dir, packetLength);
+	return 0;
+}
+
 int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const data)
 {
 	const uint32_t len = tvb_captured_length(buffer);
@@ -56,6 +63,8 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 	uint16_t consumed = 0;
 	if (pinfo->srcport == 1029)
 		consumed = disectAnalyzer(n5305aBuffer, pinfo, subtree, flags, dirStr, packetLength);
+	else
+		consumed = disectHost(n5305aBuffer, pinfo, subtree, dirStr, packetLength);
 	consumed += 4;
 
 	if (consumed != packetLength)
