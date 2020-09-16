@@ -67,6 +67,6 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 		consumed = disectHost(n5305aBuffer, pinfo, subtree, dirStr, packetLength);
 
 	if (consumed != packetLength)
-		proto_tree_add_item(subtree, hfRawData, buffer, consumed, -1, ENC_NA);
+		proto_tree_add_item(subtree, hfRawData, n5305aBuffer, consumed, -1, ENC_NA);
 	return len;
 }
