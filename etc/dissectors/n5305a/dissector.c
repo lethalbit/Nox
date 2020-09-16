@@ -48,11 +48,11 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 	uint32_t packetLength;
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 	proto_item_append_text(protocol, ", Len: %u", packetLength);
-
-	const uint32_t remainder = packetLength - (len - 4);
-	if (remainder)
+	// TODO: Build our own reassembly engine as this uses TCP's and that prevents our COL_INFO displaying.
+	if (packetLength != len - 4)
 	{
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %i", dirStr, len);
+		const uint32_t remainder = packetLength - (len - 4);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 		pinfo->fragmented = TRUE;
 		pinfo->desegment_len = remainder;
 		pinfo->desegment_offset = 0;
