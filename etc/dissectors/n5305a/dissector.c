@@ -24,6 +24,16 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 	const uint16_t flags = extractFlags(buffer, subtree);
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 
+	const uint32_t remainder = packetLength - (len - 4);
+	if (remainder)
+	{
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %i", dirStr, len);
+		pinfo->fragmented = TRUE;
+		pinfo->desegment_len = remainder;
+		pinfo->desegment_offset = 0;
+		return len;
+	}
+
 	proto_tree_add_item(subtree, hfRawData, buffer, 4, -1, ENC_NA);
 
 	return len;
