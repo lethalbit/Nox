@@ -7,6 +7,22 @@ uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 	return tvb_get_ntohs(buffer, 0);
 }
 
+uint16_t disectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const subtree,
+	const uint16_t flags, const char *const dir, const uint16_t packetLength)
+{
+	uint32_t cookie, status;
+	proto_tree_add_item(subtree, hfUnknown1, buffer, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(subtree, hfCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
+	if (flags & 0x8000U)
+	{
+		proto_item *statusItem = proto_tree_add_item_ret_uint(subtree, hfStatus, buffer, 4, 4, ENC_BIG_ENDIAN, &status);
+		if (!status)
+			proto_item_set_text(statusItem, "Status: OK");
+	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
+	return flags & 0x8000U ? 8 : 4;
+}
+
 int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const data)
 {
 	uint32_t packetLength;
@@ -34,7 +50,13 @@ int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *c
 		return len;
 	}
 
-	proto_tree_add_item(subtree, hfRawData, buffer, 4, -1, ENC_NA);
+	tvbuff_t *n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
+	uint16_t consumed = 0;
+	if (pinfo->srcport == 1029)
+		consumed = disectAnalyzer(n5305aBuffer, pinfo, subtree, flags, dirStr, packetLength);
+	consumed += 4;
 
+	if (consumed != packetLength)
+		proto_tree_add_item(subtree, hfRawData, buffer, consumed, -1, ENC_NA);
 	return len;
 }

@@ -23,6 +23,9 @@ const int *hfFlags[17] =
 };
 int hfPacketDirection = -1;
 int hfPacketLength = -1;
+int hfUnknown1 = -1;
+int hfCookie = -1;
+int hfStatus = -1;
 int hfRawData = -1;
 
 gint *ett[] =
@@ -166,6 +169,27 @@ static hf_register_info fields[] =
 		{
 			"Length", "n5305a.protocol_analyzer.packet.length",
 			FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfUnknown1,
+		{
+			"Unknown", "n5305a.protocol_analyzer.unk1",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfCookie,
+		{
+			"Cookie", "n5305a.protocol_analyzer.cookie",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfStatus,
+		{
+			"Status", "n5305a.protocol_analyzer.status",
+			FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL
 		}
 	},
 	{
