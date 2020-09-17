@@ -4,6 +4,10 @@ noxgui_deps = [
 	dependency('qt5', modules: ['Core', 'Gui', 'Widgets'], required: true),
 ]
 
+if target_machine.system() == 'windows'
+	noxgui_deps += dependency('qt5', modules: ['Main'], required: true)
+endif
+
 noxgui_srcs = files([
 	'nox-gui.cc',
 
