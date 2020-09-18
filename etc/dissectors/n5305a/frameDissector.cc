@@ -73,7 +73,6 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 			proto_tree_add_item(subtree, hfFrameData, buffer, 0, -1, ENC_NA);
-			pinfo->fragmented = TRUE;
 			return len;
 		}
 
@@ -82,11 +81,8 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 			NULL, offset, len, FALSE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 		if (fragment)
-		{
 			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
 				&n5305aFrameItems, NULL, tree);
-			pinfo->fragmented = FALSE;
-		}
 		else
 			puts("Error: fragment_add_check() return nullptr for frame reassembly");
 		frameFragment.reset();
@@ -115,7 +111,6 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 		proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
-		pinfo->fragmented = TRUE;
 		return len;
 	}
 
