@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 #include <epan/packet.h>
+extern "C"
+{
 #include <epan/reassemble.h>
+}
 
 static const char *const dirHostStr = "To Host";
 static tvbuff_t *dirHost = NULL;
