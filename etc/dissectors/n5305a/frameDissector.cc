@@ -37,26 +37,29 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 			if (!pinfo->fd->visited)
 				return nullptr;
 			auto *const frameNumber{p_get_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0)};
-			if (frameNumber)
-				return fragment_get_reassembled_id(&frameReassemblyTable, pinfo, *static_cast<uint32_t *>(frameNumber));
-			return nullptr;
+			if (!frameNumber)
+				return nullptr;
+			return fragment_get_reassembled_id(&frameReassemblyTable, pinfo, *static_cast<uint32_t *>(frameNumber));
 		}(pinfo)
 	};
 
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 	if (fragment)
 	{
+		const auto frameNumber{*static_cast<uint32_t *>(p_get_proto_data(wmem_file_scope(),
+			pinfo, protoN5305AFraming, 0))};
 		if (fragment->reassembled_in != pinfo->num)
 		{
 			const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Frame #%u] %s, Size %u", frameNumber, dirStr, len);
 			proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
+			process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
+				&n5305aFrameItems, NULL, tree);
 			return len;
 		}
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Frame, Size %hu", dirStr, len);
 		buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
 			&n5305aFrameItems, NULL, tree);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Frame #%u (%u)]", frameNumber, tvb_captured_length(buffer));
 	}
 	// If we have an active reconstruction, check if this packet would complete the reassembly
 	else if (frameFragment)
@@ -115,6 +118,8 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		return len;
 	}
 
+	if (!fragment)
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Frame #%u (%u)]", pinfo->num, len);
 	proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
 	return len;
 }
