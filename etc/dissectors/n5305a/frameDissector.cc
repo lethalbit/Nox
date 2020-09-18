@@ -10,19 +10,19 @@ std::optional<frameFragment_t> frameFragment{};
 // Table of all reconstructed frames
 reassembly_table frameReassemblyTable{};
 
-std::pair<proto_tree *, proto_item *>beginN5305AFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
+std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree)
 {
 	proto_item *protocol{};
 	// Annotate frame with basic info
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
-	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
+	auto *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
 		&protocol, "N5305A Protocol Analyzer Frame");
 	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
 	return std::make_pair(subtree, protocol);
 }
 
-static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
+static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree, void *const data _U_)
 {
 	uint32_t len = tvb_captured_length(buffer);
@@ -43,14 +43,14 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		}(pinfo)
 	};
 
-	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
+	auto *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 	if (fragment)
 	{
 		const auto frameNumber{*static_cast<uint32_t *>(p_get_proto_data(wmem_file_scope(),
 			pinfo, protoN5305AFraming, 0))};
 		if (fragment->reassembled_in != pinfo->num)
 		{
-			const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
+			const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Frame #%u] %s, Size %u", frameNumber, dirStr, len);
 			proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
 			process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
@@ -69,7 +69,7 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		// If the packet does not complete the reassembly, quick exit plz
 		if (offset + len < frame.totalLength)
 		{
-			const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
+			const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			frame.length += len;
 			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
@@ -95,7 +95,7 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	}
 
 	len = tvb_captured_length(buffer);
-	const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
+	const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 	// If we get here, the packet is fresh for dessecting and offering up to the transaction dissector
 	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
 	uint32_t packetLength;
@@ -143,6 +143,6 @@ void registerProtocolN5305AFraming()
 void registerDissectorN5305AFraming()
 {
 	static dissector_handle_t handle;
-	handle = create_dissector_handle(dissectN5305AFraming, protoN5305AFraming);
+	handle = create_dissector_handle(dissectFraming, protoN5305AFraming);
 	dissector_add_uint("tcp.port", 1029, handle);
 }
