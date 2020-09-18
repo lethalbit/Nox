@@ -1,4 +1,4 @@
-name: "Tanuki Build"
+name: "Nox Build"
 on:
   push:
     branches:
