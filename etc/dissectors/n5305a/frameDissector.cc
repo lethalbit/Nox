@@ -56,7 +56,6 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	}
 
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
-	proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
 
 	// If we have an active reconstruction, check if this packet would complete the reassembly
 	if (!fragment && frameFragment)
@@ -66,6 +65,7 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		// If the packet does not complete the reassembly, quick exit plz
 		if (offset + len < frame.totalLength)
 		{
+			proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			frame.length += len;
 			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
@@ -84,8 +84,14 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		if (fragment)
 		{
 			fragment_set_tot_len(&frameReassemblyTable, pinfo, frame.frameNumber, nullptr, frame.totalLength);
+#if 1
 			buffer = process_reassembled_data(fragment->tvb_data, 0, pinfo, "Reassembled N5305A Frame", fragment,
 				&n5305aFrameItems, NULL, tree);
+#else
+			buffer = tvb_new_chain(buffer, fragment->tvb_data);
+			add_new_data_source(pinfo, buffer, "Reassembled N5305A Frame");
+			show_fragment_tree(fragment, &n5305aFrameItems, tree, pinfo, buffer, nullptr);
+#endif
 			pinfo->fragmented = FALSE;
 		}
 		else
@@ -95,19 +101,21 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 			return len;
 	}
 
+	proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
 	// If we get here, the packet is fresh for dessecting and offering up to the transaction dissector
 	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
 	uint32_t packetLength;
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 	proto_item_append_text(protocol, ", Len: %u", packetLength);
-	if (packetLength != len - 4)
+	if (!pinfo->fd->visited && packetLength != len - 4)
 	{
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 		frameFragment_t frame;
 		frame.totalLength = packetLength + 4;
 		frame.length = len;
 		frame.frameNumber = pinfo->num;
-		frame.framePointer = &pinfo->num;
+		frame.framePointer = g_new0(uint32_t, 1);
+		*frame.framePointer = pinfo->num;
 		frameFragment = frame;
 		fragment_add(&frameReassemblyTable, buffer, 0, pinfo, pinfo->num, NULL, 0, len, TRUE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
