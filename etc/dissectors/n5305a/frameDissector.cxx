@@ -19,6 +19,17 @@ uint16_t calcFrameLength()
 	return length;
 }
 
+static proto_tree *beginN5305ASubtree(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree,
+	proto_item **const protocol)
+{
+	// Annotate frame with basic info
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
+	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
+		protocol, "N5305A Protocol Analyzer Frame");
+	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
+	return subtree;
+}
+
 static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree, void *const data _U_)
 {
@@ -26,20 +37,17 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	if (!len || len != tvb_reported_length(buffer))
 		return 0;
 
+	proto_item *protocol;
 	// If the packet is in the reassembly table, we saw it already.. use the cached info
 	fragment_head *fragment = fragment_get(&frameReassemblyTable, pinfo, pinfo->num, NULL);
 	if (fragment && fragment->reassembled_in != pinfo->num)
 	{
+		proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
 		return len;
 	}
 
-	// Annotate frame with basic info
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
-	proto_item *protocol;
-	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
-		&protocol, "N5305A Protocol Analyzer Frame");
-	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
+	proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
 
 	// If we have an active reconstruction, check if this packet would complete the reassembly
 	if (segmentList)
