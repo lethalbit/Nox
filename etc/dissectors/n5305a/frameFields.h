@@ -1,7 +1,7 @@
 #ifndef N5305A_FRAME_FIELDS__H
 #define N5305A_FRAME_FIELDS__H
 
-#include <stdint.h>
+#include <cstdint>
 #include <epan/packet.h>
 extern "C"
 {
@@ -301,11 +301,11 @@ static inline tvbuff_t *create_tvb_from_string(const char *const str)
 	return tvb_new_real_data((const uint8_t *)str, len, len);
 }
 
-typedef struct
+struct frameFragment_t
 {
 	uint16_t totalLength;
-	packet_info *pinfo;
 	uint16_t length;
-} frameFragment_t;
+	uint32_t frameNumber;
+};
 
 #endif /*N5305A_FRAME_FIELDS__H*/
