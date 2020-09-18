@@ -1,6 +1,7 @@
 #include <optional>
 #include "dissectors.h"
-#include "frameFields.h"
+#include "frameFields.hh"
+#include <epan/proto_data.h>
 
 // List of frames in active reconstruction
 std::optional<frameFragment_t> frameFragment{};
@@ -26,18 +27,32 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		return 0;
 
 	proto_item *protocol;
-	// If the packet is in the reassembly table, we saw it already.. use the cached info
-	fragment_head *fragment = fragment_get(&frameReassemblyTable, pinfo, pinfo->num, NULL);
-	if (fragment)
-		printf("Fragment for packet %u, packet has been seen before\n", pinfo->num);
+	// If the packet has already been visited, try to use the cached info
+	auto *fragment
+	{
+		[](packet_info *pinfo) noexcept -> fragment_head *
+		{
+			if (!pinfo->fd->visited)
+				return nullptr;
+			auto *const frameNumber{p_get_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0)};
+			if (frameNumber)
+				return fragment_get(&frameReassemblyTable, pinfo, *static_cast<uint32_t *>(frameNumber), NULL);
+			return nullptr;
+		}(pinfo)
+	};
+
 	if (fragment)
 	{
 		if (fragment->reassembled_in != pinfo->num)
 		{
 			proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 			proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
 			return len;
 		}
+		else
+			buffer = process_reassembled_data(fragment->tvb_data, 0, pinfo, "Reassembled N5305A Frame", fragment,
+				&n5305aFrameItems, NULL, tree);
 	}
 
 	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
@@ -48,21 +63,33 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	{
 		auto &frame = *frameFragment;
 		const auto offset{frame.length};
+		// If the packet does not complete the reassembly, quick exit plz
 		if (offset + len < frame.totalLength)
 		{
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			frame.length += len;
 			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
 				NULL, offset, len, TRUE);
-			// If the packet does not complete the reassembly, quick exit plz
+			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 			proto_tree_add_item(subtree, hfFrameData, buffer, 0, -1, ENC_NA);
+			pinfo->fragmented = TRUE;
 			return len;
 		}
 
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Frame, Size %hu", dirStr, len);
 		fragment = fragment_add_check(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
 			NULL, offset, len, FALSE);
-		buffer = process_reassembled_data(buffer, 0, pinfo, "N5305A Frame Data", fragment,
-			&n5305aFrameItems, NULL, tree);
+		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
+		if (fragment)
+		{
+			fragment_set_tot_len(&frameReassemblyTable, pinfo, frame.frameNumber, nullptr, frame.totalLength);
+			buffer = process_reassembled_data(fragment->tvb_data, 0, pinfo, "Reassembled N5305A Frame", fragment,
+				&n5305aFrameItems, NULL, tree);
+			pinfo->fragmented = FALSE;
+		}
+		else
+			puts("Error: fragment_add_check() return nullptr for frame reassembly");
 		frameFragment.reset();
 		if (!buffer)
 			return len;
@@ -80,10 +107,13 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		frame.totalLength = packetLength + 4;
 		frame.length = len;
 		frame.frameNumber = pinfo->num;
+		frame.framePointer = &pinfo->num;
 		frameFragment = frame;
 		fragment_add(&frameReassemblyTable, buffer, 0, pinfo, pinfo->num, NULL, 0, len, TRUE);
+		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 		proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
+		pinfo->fragmented = TRUE;
 		return len;
 	}
 

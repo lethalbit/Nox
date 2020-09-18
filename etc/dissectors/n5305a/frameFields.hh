@@ -306,6 +306,7 @@ struct frameFragment_t
 	uint16_t totalLength;
 	uint16_t length;
 	uint32_t frameNumber;
+	uint32_t *framePointer;
 };
 
 #endif /*N5305A_FRAME_FIELDS__H*/
