@@ -1,6 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
+title: "[FEATURE REQUEST] My Cool New Feature"
+labels: new
+assignees: ''
 
 ---
 
