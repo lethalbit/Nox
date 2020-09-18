@@ -1,0 +1,84 @@
+name: "CodeQL"
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 16 * * 3'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['cpp']
+    steps:
+      - name: Runtime environment
+        shell: bash
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          echo ::set-env name=PATH::"$HOME/.local/bin:$PATH"
+          echo ::set-env name=GITHUB_WORKSPACE::"`pwd`"
+      - name: Setup GCC
+        shell: bash
+        run: |
+          CXX=g++-10
+          CC=gcc-10
+          sudo apt-add-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install $CC $CXX
+          echo ::set-env name=CC::$CC
+          echo ::set-env name=CXX::$CXX
+      - name: Checkout Tanuki
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: true
+
+      - name: Checkout Tanuki
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: true
+
+      # If this run was triggered by a pull request event, then checkout
+      # the head of the pull request instead of the merge commit.
+      - run: git checkout HEAD^2
+        if: ${{ github.event_name == 'pull_request' }}
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+           languages: ${{ matrix.language }}
+
+      - name: Setup
+        shell: bash
+        run: |
+          wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
+          sudo pip3 install --upgrade pip setuptools wheel
+          pip3 install --user meson
+          unzip ninja-linux.zip -d ~/.local/bin
+          rm ninja-linux.zip
+        working-directory: ${{ runner.temp }}
+
+      - name: Version tools
+        shell: bash
+        run: |
+          $CC --version
+          $CXX --version
+
+          meson --version
+          ninja --version
+      - name: Configure
+
+        run: meson build --prefix=$HOME/.local $BUILD_OPTS
+      - name: Build
+        run: ninja -C build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
