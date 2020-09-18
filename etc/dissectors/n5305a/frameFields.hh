@@ -57,140 +57,140 @@ static hf_register_info fields[] =
 		&hfFlagsType,
 		{
 			"Flags", "n5305a.frame.flags",
-			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+			FT_UINT16, BASE_HEX, NULL, 0, "N5305A frame flags", HFILL
 		}
 	},
 	{
 		&flags[0],
 		{
 			"Flag 0", "n5305a.frame.flags.flag0",
-			FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0001, "N5305A frame flag 0", HFILL
 		}
 	},
 	{
 		&flags[1],
 		{
 			"Flag 1", "n5305a.frame.flags.flag1",
-			FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0002, "N5305A frame flag 1", HFILL
 		}
 	},
 	{
 		&flags[2],
 		{
 			"Flag 2", "n5305a.frame.flags.flag2",
-			FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0004, "N5305A frame flag 2", HFILL
 		}
 	},
 	{
 		&flags[3],
 		{
 			"Flag 3", "n5305a.frame.flags.flag3",
-			FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0008, "N5305A frame flag 3", HFILL
 		}
 	},
 	{
 		&flags[4],
 		{
 			"Flag 4", "n5305a.frame.flags.flag4",
-			FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0010, "N5305A frame flag 4", HFILL
 		}
 	},
 	{
 		&flags[5],
 		{
 			"Flag 5", "n5305a.frame.flags.flag5",
-			FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0020, "N5305A frame flag 5", HFILL
 		}
 	},
 	{
 		&flags[6],
 		{
 			"Flag 6", "n5305a.frame.flags.flag6",
-			FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0040, "N5305A frame flag 6", HFILL
 		}
 	},
 	{
 		&flags[7],
 		{
 			"Flag 7", "n5305a.frame.flags.flag7",
-			FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0080, "N5305A frame flag 7", HFILL
 		}
 	},
 	{
 		&flags[8],
 		{
 			"Flag 8", "n5305a.frame.flags.flag8",
-			FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0100, "N5305A frame flag 8", HFILL
 		}
 	},
 	{
 		&flags[9],
 		{
 			"Flag 9", "n5305a.frame.flags.flag9",
-			FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0200, "N5305A frame flag 9", HFILL
 		}
 	},
 	{
 		&flags[10],
 		{
 			"Flag A", "n5305a.frame.flags.flaga",
-			FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0400, "N5305A frame flag A", HFILL
 		}
 	},
 	{
 		&flags[11],
 		{
 			"Flag B", "n5305a.frame.flags.flagb",
-			FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x0800, "N5305A frame flag B", HFILL
 		}
 	},
 	{
 		&flags[12],
 		{
 			"Flag C", "n5305a.frame.flags.flagc",
-			FT_BOOLEAN, 16, NULL, 0x1000, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x1000, "N5305A frame flag C", HFILL
 		}
 	},
 	{
 		&flags[13],
 		{
 			"Flag D", "n5305a.frame.flags.flagd",
-			FT_BOOLEAN, 16, NULL, 0x2000, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x2000, "N5305A frame flag D", HFILL
 		}
 	},
 	{
 		&flags[14],
 		{
 			"Flag E", "n5305a.frame.flags.flage",
-			FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x4000, "N5305A frame flag E", HFILL
 		}
 	},
 	{
 		&flags[15],
 		{
 			"Transaction Complete", "n5305a.frame.flags.transaction_complete",
-			FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL
+			FT_BOOLEAN, 16, NULL, 0x8000, "Transaction completed flag", HFILL
 		}
 	},
 	{
 		&hfPacketDirection,
 		{
 			"Packet Direction", "n5305a.frame.direction",
-			FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL
+			FT_STRING, STR_ASCII, NULL, 0, "N5305A frame direction", HFILL
 		}
 	},
 	{
 		&hfPacketLength,
 		{
 			"Length", "n5305a.frame.length",
-			FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+			FT_UINT16, BASE_HEX_DEC, NULL, 0, "N5305A frame length", HFILL
 		}
 	},
 	{
 		&hfFrameData,
 		{
 			"Frame Data", "n5305a.frame.frame_data",
-			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0, "N5305A frame data", HFILL
 		}
 	},
 
@@ -198,56 +198,56 @@ static hf_register_info fields[] =
 		&hfFrameFragment,
 		{
 			"N5305A Frame Fragment", "n5305a.frame.frag",
-			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_FRAMENUM, BASE_NONE, NULL, 0, "N5305A frame fragment", HFILL
 		}
 	},
 	{
 		&hfFrameFragments,
 		{
 			"Reassembled N5305A Frame Fragments", "n5305a.frame.fragments",
-			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_NONE, BASE_NONE, NULL, 0, "N5305A frame fragments", HFILL
 		}
 	},
 	{
 		&hfFrameFragmentOverlap,
 		{
 			"Segment overlap", "n5305a.frame.frag.overlap",
-			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BOOLEAN, BASE_NONE, NULL, 0, "N5305A frame fragments overlap", HFILL
 		}
 	},
 	{
 		&hfFrameFragmentOverlapConflict,
 		{
 			"Conflicting data in segment overlap", "n5305a.frame.frag.overlap.conflict",
-			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BOOLEAN, BASE_NONE, NULL, 0, "N5305A frame fragment overlap conflict", HFILL
 		}
 	},
 	{
 		&hfFrameMultipleTails,
 		{
 			"Multiple tail segments found", "n5305a.frame.frag.multiple_tails",
-			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BOOLEAN, BASE_NONE, NULL, 0, "N5305A frame fragment multiple tails", HFILL
 		}
 	},
 	{
 		&hfFrameTooLongFragment,
 		{
 			"Segment too long", "n5305a.frame.frag.too_long_fragment",
-			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BOOLEAN, BASE_NONE, NULL, 0, "N5305A frame fragment is too long", HFILL
 		}
 	},
 	{
 		&hfFrameFragmentError,
 		{
 			"Reassembling error", "n5305a.frame.frag.error",
-			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_FRAMENUM, BASE_NONE, NULL, 0, "N5305A Frame fragment error", HFILL
 		}
 	},
 	{
 		&hfFrameFragmentCount,
 		{
 			"N5305A Frame Fragment Count", "n5305a.frame.fragment_count",
-			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_UINT32, BASE_DEC, NULL, 0, "N5305A frame fragment count", HFILL
 		}
 	},
 
@@ -255,21 +255,21 @@ static hf_register_info fields[] =
 		&hfFrameReassembledIn,
 		{
 			"Reassembled frame in segment", "n5305a.frame.reassembled_in",
-			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_FRAMENUM, BASE_NONE, NULL, 0, "N5305A frame reassembled in", HFILL
 		}
 	},
 	{
 		&hfFrameReassembledLength,
 		{
 			"Reassembled frame length", "n5305a.frame.reassembled.length",
-			FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+			FT_UINT32, BASE_HEX_DEC, NULL, 0, "N5305A reassembled frame length", HFILL
 		}
 	},
 	{
 		&hfFrameReassembledData,
 		{
 			"Reassembled frame data", "n5305a.frame.reassembled.data",
-			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_BYTES, BASE_NONE, NULL, 0, "N5305A reassembled frame data", HFILL
 		}
 	}
 };
