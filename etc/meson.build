@@ -40,5 +40,4 @@ configure_file(
 
 nox_inc = include_directories('.')
 
-wireshark = dependency('wireshark')
-subdir('dissectors/n5305a')
+subdir('dissectors')
