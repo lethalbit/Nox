@@ -56,11 +56,9 @@ static int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo,
 }
 
 static int disectN5305ATransact(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const tree, void *const data)
+	proto_tree *const tree, void *const data _U_)
 {
 	const uint32_t len = tvb_captured_length(buffer);
-	(void)data;
-
 	if (!len || len != tvb_reported_length(buffer))
 		return 0;
 
