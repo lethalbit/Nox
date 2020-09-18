@@ -2,12 +2,19 @@
 #include <ws_version.h>
 #include "dissectors.h"
 
-WS_DLL_PUBLIC_DEF const char *const plugin_version = "0.0.2";
-WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
-WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
-WS_DLL_PUBLIC void plugin_register(void);
+extern "C"
+{
+	extern const char *const plugin_version WS_DLL_PUBLIC_DEF;
+	extern const int plugin_want_major WS_DLL_PUBLIC_DEF;
+	extern const int plugin_want_minor WS_DLL_PUBLIC_DEF;
+	WS_DLL_PUBLIC void plugin_register();
+}
 
-void plugin_register(void)
+const char *const plugin_version = "0.0.2";
+const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
+const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
+
+void plugin_register()
 {
 	static proto_plugin framePlugin;
 	//static proto_plugin transactionPlugin;
