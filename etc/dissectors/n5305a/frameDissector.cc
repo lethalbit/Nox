@@ -83,14 +83,8 @@ static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 		if (fragment)
 		{
-#if 1
 			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
 				&n5305aFrameItems, NULL, tree);
-#else
-			buffer = tvb_new_chain(buffer, fragment->tvb_data);
-			add_new_data_source(pinfo, buffer, "Reassembled N5305A Frame");
-			show_fragment_tree(fragment, &n5305aFrameItems, tree, pinfo, buffer, nullptr);
-#endif
 			pinfo->fragmented = FALSE;
 		}
 		else
