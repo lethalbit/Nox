@@ -1,5 +1,6 @@
-#include <optional>
 #include <cstdio>
+#include <optional>
+#include <utility>
 #include "dissectors.h"
 #include "frameFields.hh"
 #include <epan/proto_data.h>
@@ -9,15 +10,16 @@ std::optional<frameFragment_t> frameFragment{};
 // Table of all reconstructed frames
 reassembly_table frameReassemblyTable{};
 
-static proto_tree *beginN5305ASubtree(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree,
-	proto_item **const protocol)
+std::pair<proto_tree *, proto_item *>beginN5305AFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
+	proto_tree *const tree)
 {
+	proto_item *protocol{};
 	// Annotate frame with basic info
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
 	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
-		protocol, "N5305A Protocol Analyzer Frame");
+		&protocol, "N5305A Protocol Analyzer Frame");
 	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
-	return subtree;
+	return std::make_pair(subtree, protocol);
 }
 
 static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
@@ -27,7 +29,6 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	if (!len || len != tvb_reported_length(buffer))
 		return 0;
 
-	proto_item *protocol;
 	// If the packet has already been visited, try to use the cached info
 	auto *fragment
 	{
@@ -47,7 +48,7 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	{
 		if (fragment->reassembled_in != pinfo->num)
 		{
-			proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
+			const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 			proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
@@ -65,7 +66,7 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		// If the packet does not complete the reassembly, quick exit plz
 		if (offset + len < frame.totalLength)
 		{
-			proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
+			const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			frame.length += len;
 			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
@@ -91,7 +92,7 @@ static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	}
 
 	len = tvb_captured_length(buffer);
-	proto_tree *const subtree = beginN5305ASubtree(buffer, pinfo, tree, &protocol);
+	const auto &[subtree, protocol] = beginN5305AFrameSubtree(buffer, pinfo, tree);
 	// If we get here, the packet is fresh for dessecting and offering up to the transaction dissector
 	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
 	uint32_t packetLength;
