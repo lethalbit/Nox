@@ -20,7 +20,7 @@ static proto_tree *beginN5305ASubtree(tvbuff_t *buffer, packet_info *const pinfo
 	return subtree;
 }
 
-static int disectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
+static int dissectN5305AFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree, void *const data _U_)
 {
 	uint32_t len = tvb_captured_length(buffer);
@@ -137,6 +137,6 @@ void registerProtocolN5305AFraming()
 void registerDissectorN5305AFraming()
 {
 	static dissector_handle_t handle;
-	handle = create_dissector_handle(disectN5305AFraming, protoN5305AFraming);
+	handle = create_dissector_handle(dissectN5305AFraming, protoN5305AFraming);
 	dissector_add_uint("tcp.port", 1029, handle);
 }
