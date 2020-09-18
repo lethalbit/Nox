@@ -5,6 +5,7 @@ n5305a_srcs = [
 shared_library(
 	'n5305a',
 	n5305a_srcs,
+	name_prefix: '',
 	c_args: ['-DWS_BUILD_DLL', '-DHAVE_PLUGINS'],
 	cpp_args: ['-DWS_BUILD_DLL', '-DHAVE_PLUGINS'],
 	dependencies: [wireshark],
