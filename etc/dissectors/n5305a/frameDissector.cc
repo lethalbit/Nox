@@ -18,7 +18,8 @@ std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Frame");
 	auto *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305AFrame,
 		&protocol, "N5305A Protocol Analyzer Frame");
-	proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
+	auto *const frame_direction = proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
+	proto_item_set_generated(frame_direction);
 	return std::make_pair(subtree, protocol);
 }
 
