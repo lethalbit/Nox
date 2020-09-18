@@ -55,7 +55,7 @@ static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Frame #%u] %s, Size %u", frameNumber, dirStr, len);
 
 			int buffer_offset{0};
-			if (fragment->frame == pinfo->num) {
+			if (fragment->next->frame == pinfo->num) {
 				/* This should be the first frame in the reassembly? */
 				buffer_offset = 4;
 				proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
