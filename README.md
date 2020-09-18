@@ -1,4 +1,4 @@
-# Nox
+# Nox ![Nox Build](https://github.com/lethalbit/Nox/workflows/Nox%20Build/badge.svg) [![Total alerts](https://img.shields.io/lgtm/alerts/g/lethalbit/Nox.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/lethalbit/Nox/alerts/)
 
 Nox is a project that consists of an interface library and a GUI and CLI client for interacting with the Agilent N5540A and it's supported modules.
 
