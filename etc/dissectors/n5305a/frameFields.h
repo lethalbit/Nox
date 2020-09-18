@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <epan/packet.h>
+#include <epan/reassemble.h>
 
 static const char *const dirHostStr = "To Host";
 static tvbuff_t *dirHost = NULL;
@@ -25,10 +26,26 @@ static int hfPacketDirection = -1;
 static int hfPacketLength = -1;
 static int hfFrameData = -1;
 
+static int32_t ettFrameFragment = -1;
+static int32_t ettFrameFragments = -1;
+static int hfFrameFragment = -1;
+static int hfFrameFragments = -1;
+static int hfFrameFragmentOverlap = -1;
+static int hfFrameFragmentOverlapConflict = -1;
+static int hfFrameMultipleTails = -1;
+static int hfFrameTooLongFragment = -1;
+static int hfFrameFragmentError = -1;
+static int hfFrameFragmentCount = -1;
+static int hfFrameReassembledIn = -1;
+static int hfFrameReassembledLength = -1;
+static int hfFrameReassembledData = -1;
+
 static int32_t *ett[] =
 {
 	&ettN5305AFrame,
-	&ettFrameFlags
+	&ettFrameFlags,
+	&ettFrameFragment,
+	&ettFrameFragments
 };
 
 static hf_register_info fields[] =
@@ -172,7 +189,107 @@ static hf_register_info fields[] =
 			"Frame Data", "n5305a.frame.frame_data",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		}
+	},
+
+	{
+		&hfFrameFragment,
+		{
+			"N5305A Frame Fragment", "n5305a.frame.frag",
+			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameFragments,
+		{
+			"Reassembled N5305A Frame Fragments", "n5305a.frame.fragments",
+			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameFragmentOverlap,
+		{
+			"Segment overlap", "n5305a.frame.frag.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameFragmentOverlapConflict,
+		{
+			"Conflicting data in segment overlap", "n5305a.frame.frag.overlap.conflict",
+			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameMultipleTails,
+		{
+			"Multiple tail segments found", "n5305a.frame.frag.multiple_tails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameTooLongFragment,
+		{
+			"Segment too long", "n5305a.frame.frag.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameFragmentError,
+		{
+			"Reassembling error", "n5305a.frame.frag.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameFragmentCount,
+		{
+			"N5305A Frame Fragment Count", "n5305a.frame.fragment_count",
+			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
+		}
+	},
+
+	{
+		&hfFrameReassembledIn,
+		{
+			"Reassembled frame in segment", "n5305a.frame.reassembled_in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameReassembledLength,
+		{
+			"Reassembled frame length", "n5305a.frame.reassembled.length",
+			FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL
+		}
+	},
+	{
+		&hfFrameReassembledData,
+		{
+			"Reassembled frame data", "n5305a.frame.reassembled.data",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		}
 	}
+};
+
+static const fragment_items n5305aFrameItems =
+{
+	&ettFrameFragment,
+	&ettFrameFragments,
+
+	&hfFrameFragments,
+	&hfFrameFragment,
+	&hfFrameFragmentOverlap,
+	&hfFrameFragmentOverlapConflict,
+	&hfFrameMultipleTails,
+	&hfFrameTooLongFragment,
+	&hfFrameFragmentError,
+	&hfFrameFragmentCount,
+
+	&hfFrameReassembledIn,
+	&hfFrameReassembledLength,
+	&hfFrameReassembledData,
+
+	"Frame fragments"
 };
 
 static inline tvbuff_t *create_tvb_from_string(const char *const str)
@@ -180,5 +297,12 @@ static inline tvbuff_t *create_tvb_from_string(const char *const str)
 	const size_t len = strlen(str) + 1;
 	return tvb_new_real_data((const uint8_t *)str, len, len);
 }
+
+typedef struct
+{
+	uint16_t totalLength;
+	packet_info *pinfo;
+	uint16_t length;
+} frameFragment_t;
 
 #endif /*N5305A_FRAME_FIELDS__H*/
