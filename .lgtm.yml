@@ -1,0 +1,19 @@
+extraction:
+  cpp:
+    after_prepare:
+      - PATH="$HOME/.local/bin:$PATH"
+      - pip3 install --upgrade setuptools wheel
+      - pip3 install --upgrade meson
+      - git clone --recursive https://github.com/bad-alloc-heavy-industries/substrate.git subprojects/substrate
+    configure:
+      command:
+        - meson build
+    index:
+      build_command:
+        - ninja -C build
+queries:
+  - include: "*"
+  - include:
+      id: "cpp/todo-comment"
+  - include:
+      id: "cpp/fixme-comment"
