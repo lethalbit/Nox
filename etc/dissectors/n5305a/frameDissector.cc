@@ -104,12 +104,7 @@ static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	if (!pinfo->fd->visited && packetLength != len - 4)
 	{
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
-		frameFragment_t frame;
-		frame.totalLength = packetLength + 4;
-		frame.length = len;
-		frame.frameNumber = pinfo->num;
-		frame.framePointer = g_new0(uint32_t, 1);
-		*frame.framePointer = pinfo->num;
+		frameFragment_t frame{packetLength, len, pinfo->num};
 		frameFragment = frame;
 		fragment_add(&frameReassemblyTable, buffer, 0, pinfo, pinfo->num, nullptr, 0, len, TRUE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);

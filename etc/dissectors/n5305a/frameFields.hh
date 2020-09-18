@@ -303,10 +303,22 @@ static inline tvbuff_t *create_tvb_from_string(const char *const str)
 
 struct frameFragment_t
 {
-	uint16_t totalLength;
-	uint16_t length;
+	uint32_t totalLength;
+	uint32_t length;
 	uint32_t frameNumber;
 	uint32_t *framePointer;
+
+	frameFragment_t(const uint32_t packetLength, const uint32_t len, const uint32_t frameNum) noexcept :
+		totalLength{packetLength + 4U}, length{len}, frameNumber{frameNum},
+		framePointer
+		{
+			[](const uint32_t frameNum)
+			{
+				auto *const result = g_new0(uint32_t, 1);
+				*result = frameNum;
+				return result;
+			}(frameNum)
+		} { }
 };
 
 #endif /*N5305A_FRAME_FIELDS__H*/
