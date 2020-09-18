@@ -53,7 +53,16 @@ static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
 		{
 			const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Frame #%u] %s, Size %u", frameNumber, dirStr, len);
-			proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
+
+			int buffer_offset{0};
+			if (fragment->frame == pinfo->num) {
+				/* This should be the first frame in the reassembly? */
+				buffer_offset = 4;
+				proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN);
+			}
+
+			proto_tree_add_item(subtree, hfFrameData, buffer, buffer_offset, -1, ENC_NA);
 			process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
 				&n5305aFrameItems, NULL, tree);
 			return len;
