@@ -33,13 +33,7 @@ jobs:
           sudo apt-get install $CC $CXX
           echo ::set-env name=CC::$CC
           echo ::set-env name=CXX::$CXX
-      - name: Checkout Tanuki
-        uses: actions/checkout@v2
-        with:
-          lfs: true
-          submodules: true
-
-      - name: Checkout Tanuki
+      - name: Checkout Nox
         uses: actions/checkout@v2
         with:
           lfs: true
@@ -64,7 +58,7 @@ jobs:
           pip3 install --user meson
           unzip ninja-linux.zip -d ~/.local/bin
           rm ninja-linux.zip
-          sudo apt-get -y install python3-dev libedit-dev qtbase5-dev
+          sudo apt-get -y install python3-dev libedit-dev qtbase5-dev qttools5-dev-tools
         working-directory: ${{ runner.temp }}
 
       - name: Version tools

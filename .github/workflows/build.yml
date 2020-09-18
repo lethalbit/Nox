@@ -57,7 +57,7 @@ jobs:
           echo ::set-env name=CXX::$CXX
         env:
           CC: ${{ matrix.compiler }}
-      - name: Checkout Tanuki
+      - name: Checkout Nox
         uses: actions/checkout@v2
         with:
           lfs: true
@@ -70,7 +70,7 @@ jobs:
           pip3 install --user meson
           unzip ninja-linux.zip -d ~/.local/bin
           rm ninja-linux.zip
-          sudo apt-get -y install python3-dev libedit-dev qtbase5-dev
+          sudo apt-get -y install python3-dev libedit-dev qtbase5-dev qttools5-dev-tools
         working-directory: ${{ runner.temp }}
       - name: Version tools
         shell: bash
