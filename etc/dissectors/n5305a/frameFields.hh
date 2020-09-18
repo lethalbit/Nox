@@ -321,4 +321,21 @@ struct frameFragment_t
 		} { }
 };
 
+struct transactFragment_t
+{
+	uint16_t transactCookie;
+	uint16_t *cookiePointer;
+
+	transactFragment_t(const uint16_t cookie) noexcept :
+		transactCookie{cookie}, cookiePointer
+		{
+			[](const uint16_t transactCookie)
+			{
+				auto *const result = g_new0(uint16_t, 1);
+				*result = transactCookie;
+				return result;
+			}(transactCookie)
+		} { }
+};
+
 #endif /*N5305A_FRAME_FIELDS__H*/
