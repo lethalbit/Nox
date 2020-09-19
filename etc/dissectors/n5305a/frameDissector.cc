@@ -67,6 +67,20 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 			&n5305aTransactItems, NULL, tree);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
 	}
+
+	if (!pinfo->fd->visited && !(frameFlags & 0x8000U))
+	{
+		const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+		const uint16_t cookie = tvb_get_ntohs(buffer, 2);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+		transactFragment_t transact{cookie, pinfo->num};
+		transactFragment = transact;
+		fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, 0, len, TRUE);
+		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
+		col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A transaction]");
+		proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
+		return len;
+	}
 	return call_dissector(transactionDissector, buffer, pinfo, tree);
 }
 
