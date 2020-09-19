@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <epan/packet.h>
 #include <ws_version.h>
+#include "dissectors.hh"
 
 #if WIRESHARK_VERSION_MAJOR >= 3 && WIRESHARK_VERSION_MINOR > 2
 #define BITMASK_CONST
@@ -15,7 +16,7 @@
 #endif
 
 static int32_t protoN5305ATransact = -1;
-static int32_t ettN5305ATransact = -1;
+int32_t ettN5305ATransact = -1;
 static int32_t ettTransactFlags = -1;
 
 static int32_t hfFlagsType = -1;
@@ -34,9 +35,9 @@ static std::array<BITMASK_CONST int32_t*, 17> hfFlags{
 	nullptr
 };
 
-static int32_t hfCookie = -1;
-static int32_t hfStatus = -1;
-static int32_t hfRawData = -1;
+int32_t hfTransactCookie = -1;
+static int32_t hfTransactStatus = -1;
+int32_t hfTransactData = -1;
 
 static std::array<int32_t*, 2> ett{
 	&ettN5305ATransact,
@@ -164,23 +165,23 @@ static auto fields{substrate::make_array<hf_register_info>({
 		}
 	},
 	{
-		&hfCookie,
+		&hfTransactCookie,
 		{
 			"Cookie", "n5305a.protocol_analyzer.cookie",
 			FT_UINT16, BASE_HEX, nullptr, 0, nullptr, HFILL
 		}
 	},
 	{
-		&hfStatus,
+		&hfTransactStatus,
 		{
 			"Status", "n5305a.protocol_analyzer.status",
 			FT_UINT32, BASE_HEX_DEC, nullptr, 0, nullptr, HFILL
 		}
 	},
 	{
-		&hfRawData,
+		&hfTransactData,
 		{
-			"Raw Data", "n5305a.protocol_analyzer.raw_data",
+			"Transaction Data", "n5305a.protocol_analyzer.transact_data",
 			FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
 		}
 	}

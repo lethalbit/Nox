@@ -15,7 +15,8 @@ static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo
 	proto_tree *const subtree, const uint16_t packetLength)
 {
 	uint32_t status;
-	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfStatus, buffer, 0, 4, ENC_BIG_ENDIAN, &status);
+	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfTransactStatus,
+		buffer, 0, 4, ENC_BIG_ENDIAN, &status);
 	if (!status)
 		proto_item_set_text(statusItem, "Status: OK");
 	return 4;
@@ -40,7 +41,7 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, pro
 	const uint16_t flags = extractFlags(buffer, subtree);
 	(void)flags;
 	uint32_t cookie;
-	proto_tree_add_item_ret_uint(subtree, hfCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
+	proto_tree_add_item_ret_uint(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
 	proto_item_append_text(protocol, ", Cookie: 0x%04X", cookie);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
 
@@ -52,7 +53,7 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, pro
 		consumed = dissectHost(n5305aBuffer, pinfo, subtree, packetLength);
 
 	if (consumed + 4U != packetLength)
-		proto_tree_add_item(subtree, hfRawData, n5305aBuffer, consumed, -1, ENC_NA);
+		proto_tree_add_item(subtree, hfTransactData, n5305aBuffer, consumed, -1, ENC_NA);
 	return packetLength;
 }
 
