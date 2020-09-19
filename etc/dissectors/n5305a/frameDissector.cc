@@ -52,7 +52,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		if (fragment->reassembled_in != pinfo->num)
 		{
 			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragmented Transaction #%hu]", cookie);
 
 			int32_t buffer_offset{0};
 			// Make the first frame reassembled look nice with the header
@@ -69,7 +69,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		}
 		buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
 			&n5305aTransactItems, NULL, tree);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " [Transaction #%hu]", cookie);
 	}
 	// If we have an active reconstruction, check if this packet would complete the reassembly
 	else if (transactFragment)
@@ -81,15 +81,14 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		if (!(frameFlags & 0x8000))
 		{
 			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
 			transact.length += len;
 			fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, offset, len, TRUE);
 			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A transaction]");
 			proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
 			return len;
 		}
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
 		fragment = fragment_add_check(&transactReassemblyTable, buffer, 0, pinfo, cookie,
 			nullptr, offset, len, FALSE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
@@ -97,7 +96,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
 				&n5305aTransactItems, nullptr, tree);
 		else
-			puts("Error: fragment_add_check() return nullptr for transaction reassembly");
+			printf("Error: fragment_add_check() returned nullptr for transaction reassembly (0x%04X)\n", cookie);
 		transactFragment.reset();
 		if (!fragment || !buffer)
 			return len;
@@ -107,8 +106,8 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 	{
 		const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
 		const uint16_t cookie = tvb_get_ntohs(buffer, 2);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
-		transactFragment_t transact{cookie, pinfo->num};
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+		transactFragment_t transact{cookie, len};
 		transactFragment = transact;
 		fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, 0, len, TRUE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
@@ -245,11 +244,12 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			/* For some reason the fragment check return properly print an error */
 			puts("Error: fragment_add_check() return nullptr for frame reassembly");
 		}
+		const auto frameNumber{frame.frameNumber};
 		/* reset frame reassembly state */
 		frameFragment.reset();
 		/* If we are in a invalid state return this packet */
 		if (!fragment || !buffer) {
-			puts("Error: dissectFraming(): fragment or buffer is invalid, dazed and confused");
+			printf("Error: dissectFraming(%u): fragment or buffer is invalid, dazed and confused\n", frameNumber);
 			return len;
 		}
 	}
@@ -299,7 +299,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	/* Add the frame data to the tree */
 	proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
 	/* Construct a tvb from the reassembled frame data offset by the frame header */
-	auto *const frameBuffer{tvb_new_subset_remaining(buffer, 4)};
+	auto *const frameBuffer{tvb_new_subset_length(buffer, 4, packetLength)};
 	/* Dissect the completed frame and return the value */
 	return dissectFrame(frameBuffer, pinfo, tree, tvb_get_ntohs(buffer, 0));
 }
