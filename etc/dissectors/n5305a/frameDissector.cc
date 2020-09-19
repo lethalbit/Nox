@@ -32,7 +32,7 @@ std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_
 	return std::make_pair(subtree, protocol);
 }
 
-int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, void *const data _U_)
+int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
 {
 	uint32_t len = tvb_captured_length(buffer);
 	if (!len || len != tvb_reported_length(buffer))

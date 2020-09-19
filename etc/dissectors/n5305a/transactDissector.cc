@@ -27,8 +27,7 @@ static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
 	return 0;
 }
 
-static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const tree, void *const data _U_)
+static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
 {
 	const uint32_t packetLength = tvb_captured_length(buffer);
 	const char *const dir = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
