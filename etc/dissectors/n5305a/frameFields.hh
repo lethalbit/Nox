@@ -10,7 +10,6 @@ extern "C"
 {
 #include <epan/reassemble.h>
 }
-#include <ws_version.h>
 
 #if WIRESHARK_VERSION_MAJOR >= 3 && WIRESHARK_VERSION_MINOR > 2
 #define BITMASK_CONST

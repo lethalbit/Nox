@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <epan/packet.h>
-#include <ws_version.h>
 #include "dissectors.hh"
 
 #if WIRESHARK_VERSION_MAJOR >= 3 && WIRESHARK_VERSION_MINOR > 2
