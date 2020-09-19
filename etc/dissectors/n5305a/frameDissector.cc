@@ -67,6 +67,37 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 			&n5305aTransactItems, NULL, tree);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
 	}
+	// If we have an active reconstruction, check if this packet would complete the reassembly
+	else if (transactFragment)
+	{
+		auto &transact = *transactFragment;
+		const auto offset{transact.length};
+		const auto cookie{transact.transactCookie};
+		// If the packet does not complete the reassembly, quick exit plz
+		if (!(frameFlags & 0x8000))
+		{
+			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+			transact.length += len;
+			fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, offset, len, TRUE);
+			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
+			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A transaction]");
+			proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
+			return len;
+		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
+		fragment = fragment_add_check(&transactReassemblyTable, buffer, 0, pinfo, cookie,
+			nullptr, offset, len, FALSE);
+		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
+		if (fragment)
+			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
+				&n5305aTransactItems, nullptr, tree);
+		else
+			puts("Error: fragment_add_check() return nullptr for transaction reassembly");
+		transactFragment.reset();
+		if (!fragment || !buffer)
+			return len;
+	}
 
 	if (!pinfo->fd->visited && !(frameFlags & 0x8000U))
 	{
