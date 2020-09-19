@@ -25,11 +25,49 @@ std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, pro
 
 int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, const uint16_t frameFlags)
 {
-	if (frameFlags & 0x8000U)
-		return call_dissector(transactionDissector, buffer, pinfo, tree);
-
 	const uint32_t len = tvb_captured_length(buffer);
-	return len;
+
+	// If the packet has already been visited, try to use the cached info
+	auto *fragment
+	{
+		[](packet_info *pinfo) noexcept -> fragment_head *
+		{
+			if (!pinfo->fd->visited)
+				return nullptr;
+			auto *const cookie{p_get_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1)};
+			if (!cookie)
+				return nullptr;
+			return fragment_get_reassembled_id(&transactReassemblyTable, pinfo, *static_cast<uint16_t *>(cookie));
+		}(pinfo)
+	};
+
+	if (fragment)
+	{
+		const auto cookie{*static_cast<uint16_t *>(p_get_proto_data(wmem_file_scope(),
+			pinfo, protoN5305AFraming, 1))};
+		if (fragment->reassembled_in != pinfo->num)
+		{
+			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+
+			int32_t buffer_offset{0};
+			// Make the first frame reassembled look nice with the header
+			if (fragment->next->frame == pinfo->num) {
+				/* This should be the first frame in the reassembly? */
+				buffer_offset = 4;
+				proto_tree_add_item(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN);
+			}
+
+			proto_tree_add_item(subtree, hfTransactData, buffer, buffer_offset, -1, ENC_NA);
+			process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
+				&n5305aTransactItems, nullptr, tree);
+			return len;
+		}
+		buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
+			&n5305aTransactItems, NULL, tree);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
+	}
+	return call_dissector(transactionDissector, buffer, pinfo, tree);
 }
 
 std::pair<proto_tree *, proto_item *> beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
