@@ -10,6 +10,15 @@ std::optional<frameFragment_t> frameFragment{};
 // Table of all reconstructed frames
 reassembly_table frameReassemblyTable{};
 
+int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, const uint16_t frameFlags)
+{
+	if (frameFlags & 0x8000U)
+		return call_dissector(transactionDissector, buffer, pinfo, tree);
+
+	const uint32_t len = tvb_captured_length(buffer);
+	return len;
+}
+
 std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree)
 {
@@ -23,8 +32,7 @@ std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_
 	return std::make_pair(subtree, protocol);
 }
 
-static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
-	proto_tree *const tree, void *const data _U_)
+int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, void *const data _U_)
 {
 	uint32_t len = tvb_captured_length(buffer);
 	if (!len || len != tvb_reported_length(buffer))
@@ -126,7 +134,8 @@ static int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo,
 	if (!fragment)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[Frame #%u (%u)]", pinfo->num, len);
 	proto_tree_add_item(subtree, hfFrameData, buffer, 4, -1, ENC_NA);
-	return len;
+	auto *const frameBuffer{tvb_new_subset_remaining(buffer, 4)};
+	return dissectFrame(frameBuffer, pinfo, tree, tvb_get_ntohs(buffer, 0));
 }
 
 void registerProtocolN5305AFraming()

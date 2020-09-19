@@ -1,6 +1,7 @@
 #include "dissectors.h"
 #include "transactionFields.h"
 
+dissector_handle_t transactionDissector;
 static const char *const dirHostStr = "To Host";
 static const char *const dirAnalyzerStr = "To Analyzer";
 
@@ -10,7 +11,7 @@ uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 	return tvb_get_ntohs(buffer, 0);
 }
 
-static uint16_t disectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
+static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
 	proto_tree *const subtree, const uint16_t packetLength)
 {
 	uint32_t status;
@@ -20,16 +21,17 @@ static uint16_t disectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
 	return 4;
 }
 
-static uint16_t disectHost(tvbuff_t *const buffer, packet_info *const pinfo,
+static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
 	proto_tree *const subtree, const uint16_t packetLength)
 {
 	return 0;
 }
 
-static int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const tree, const char *const dir)
+static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo,
+	proto_tree *const tree, void *const data _U_)
 {
 	const uint32_t packetLength = tvb_captured_length(buffer);
+	const char *const dir = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "N5305A Protocol Analyzer Transaction");
 	proto_item *protocol;
@@ -41,44 +43,18 @@ static int disectN5305A(tvbuff_t *const buffer, packet_info *const pinfo,
 	uint32_t cookie;
 	proto_tree_add_item_ret_uint(subtree, hfCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
 	proto_item_append_text(protocol, ", Cookie: 0x%04X", cookie);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
 
 	tvbuff_t *const n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
 	uint16_t consumed = 0;
 	if (pinfo->srcport == 1029)
-		consumed = disectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength);
+		consumed = dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength);
 	else
-		consumed = disectHost(n5305aBuffer, pinfo, subtree, packetLength);
+		consumed = dissectHost(n5305aBuffer, pinfo, subtree, packetLength);
 
 	if (consumed != packetLength)
 		proto_tree_add_item(subtree, hfRawData, n5305aBuffer, consumed, -1, ENC_NA);
 	return packetLength;
-}
-
-static int disectN5305ATransact(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const tree, void *const data _U_)
-{
-	const uint32_t len = tvb_captured_length(buffer);
-	if (!len || len != tvb_reported_length(buffer))
-		return 0;
-
-	const uint16_t packetLength = tvb_get_ntohs(buffer, 2);
-	tvbuff_t *const n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
-
-	const char *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
-
-	// TODO: Build our own reassembly engine as this uses TCP's and that prevents our COL_INFO displaying.
-	if (packetLength != len - 4)
-	{
-		const uint32_t remainder = packetLength - (len - 4);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
-		pinfo->fragmented = TRUE;
-		pinfo->desegment_len = remainder;
-		pinfo->desegment_offset = 0;
-		return len;
-	}
-
-	return disectN5305A(n5305aBuffer, pinfo, tree, dirStr);
 }
 
 void registerProtocolN5305ATransaction()
@@ -94,8 +70,4 @@ void registerProtocolN5305ATransaction()
 }
 
 void registerDissectorN5305ATransaction()
-{
-	static dissector_handle_t handle;
-	handle = create_dissector_handle(disectN5305ATransact, protoN5305ATransact);
-	//dissector_add_uint("tcp.port", 1029, handle);
-}
+	{ transactionDissector = create_dissector_handle(dissectTransact, protoN5305ATransact); }

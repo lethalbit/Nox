@@ -17,13 +17,13 @@ const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 void plugin_register()
 {
 	static proto_plugin framePlugin;
-	//static proto_plugin transactionPlugin;
+	static proto_plugin transactionPlugin;
 
 	framePlugin.register_protoinfo = registerProtocolN5305AFraming;
 	framePlugin.register_handoff = registerDissectorN5305AFraming;
 	proto_register_plugin(&framePlugin);
 
-	/*transactionPlugin.register_protoinfo = registerProtocolN5305ATransaction;
+	transactionPlugin.register_protoinfo = registerProtocolN5305ATransaction;
 	transactionPlugin.register_handoff = registerDissectorN5305ATransaction;
-	proto_register_plugin(&transactionPlugin);*/
+	proto_register_plugin(&transactionPlugin);
 }
