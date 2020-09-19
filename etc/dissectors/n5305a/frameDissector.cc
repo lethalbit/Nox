@@ -36,7 +36,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 	{
 		[](packet_info *pinfo) noexcept -> fragment_head *
 		{
-			if (!pinfo->fd->visited)
+			if (!PINFO_FD_VISITED(pinfo))
 				return nullptr;
 			auto *const cookie{p_get_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1)};
 			if (!cookie)
@@ -103,7 +103,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 			return len;
 	}
 
-	if (!pinfo->fd->visited && !(frameFlags & 0x8000U))
+	if (!PINFO_FD_VISITED(pinfo) && !(frameFlags & 0x8000U))
 	{
 		const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
 		const uint16_t cookie = tvb_get_ntohs(buffer, 2);
@@ -146,7 +146,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	{
 		[](packet_info *pinfo) noexcept -> fragment_head *
 		{
-			if (!pinfo->fd->visited)
+			if (!PINFO_FD_VISITED(pinfo))
 				return nullptr;
 			/* If we've been visited, look up the frame number from the pinfo protocol specific data in slot 0 */
 			auto *const frameNumber{p_get_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0)};
@@ -270,7 +270,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 	proto_item_append_text(protocol, ", Len: %u", packetLength);
 	/* If this is not the second pass, check the lengths to see if we're in a fragmented packet */
-	if (!pinfo->fd->visited && packetLength != len - 4)
+	if (!PINFO_FD_VISITED(pinfo) && packetLength != len - 4)
 	{
 		/* This is the first packet in a fragmented frame chain */
 
