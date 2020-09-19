@@ -31,7 +31,7 @@ static int32_t hfCookie = -1;
 static int32_t hfStatus = -1;
 static int32_t hfRawData = -1;
 
-std::array<int32_t*, 2> ett{
+static std::array<int32_t*, 2> ett{
 	&ettN5305ATransact,
 	&ettTransactFlags
 };

@@ -1,6 +1,9 @@
 #ifndef N5305A_FRAME_FIELDS__H
 #define N5305A_FRAME_FIELDS__H
 
+#include <array>
+#include <substrate/utility>
+
 #include <cstdint>
 #include <epan/packet.h>
 extern "C"
@@ -13,46 +16,53 @@ static tvbuff_t *dirHost = nullptr;
 static const char *const dirAnalyzerStr = "To Analyzer";
 static tvbuff_t *dirAnalyzer = nullptr;
 
-static int protoN5305AFraming = -1;
+static int32_t protoN5305AFraming = -1;
 static int32_t ettN5305AFrame = -1;
 static int32_t ettFrameFlags = -1;
 
-static int hfFlagsType = -1;
-static int flags[16] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-static const int *hfFlags[17] =
-{
-	&flags[0], &flags[1], &flags[2], &flags[3], &flags[4], &flags[5], &flags[6], &flags[7],
-	&flags[8], &flags[9], &flags[10], &flags[11], &flags[12], &flags[13], &flags[14], &flags[15],
+static int32_t hfFlagsType = -1;
+
+static std::array<int32_t, 16> flags{
+	-1, -1, -1, -1,
+	-1, -1, -1, -1,
+	-1, -1, -1, -1,
+	-1, -1, -1, -1
+};
+
+static std::array<int32_t*, 17> hfFlags{
+	&flags[0],  &flags[1],  &flags[2],  &flags[3],
+	&flags[4],  &flags[5],  &flags[6],  &flags[7],
+	&flags[8],  &flags[9],  &flags[10], &flags[11],
+	&flags[12], &flags[13], &flags[14], &flags[15],
 	nullptr
 };
-static int hfPacketDirection = -1;
-static int hfPacketLength = -1;
-static int hfFrameData = -1;
+
+static int32_t hfPacketDirection = -1;
+static int32_t hfPacketLength = -1;
+static int32_t hfFrameData = -1;
 
 static int32_t ettFrameFragment = -1;
 static int32_t ettFrameFragments = -1;
-static int hfFrameFragment = -1;
-static int hfFrameFragments = -1;
-static int hfFrameFragmentOverlap = -1;
-static int hfFrameFragmentOverlapConflict = -1;
-static int hfFrameMultipleTails = -1;
-static int hfFrameTooLongFragment = -1;
-static int hfFrameFragmentError = -1;
-static int hfFrameFragmentCount = -1;
-static int hfFrameReassembledIn = -1;
-static int hfFrameReassembledLength = -1;
-static int hfFrameReassembledData = -1;
+static int32_t hfFrameFragment = -1;
+static int32_t hfFrameFragments = -1;
+static int32_t hfFrameFragmentOverlap = -1;
+static int32_t hfFrameFragmentOverlapConflict = -1;
+static int32_t hfFrameMultipleTails = -1;
+static int32_t hfFrameTooLongFragment = -1;
+static int32_t hfFrameFragmentError = -1;
+static int32_t hfFrameFragmentCount = -1;
+static int32_t hfFrameReassembledIn = -1;
+static int32_t hfFrameReassembledLength = -1;
+static int32_t hfFrameReassembledData = -1;
 
-static int32_t *ett[] =
-{
+static std::array<int32_t*, 4> ett{
 	&ettN5305AFrame,
 	&ettFrameFlags,
 	&ettFrameFragment,
 	&ettFrameFragments
 };
 
-static hf_register_info fields[] =
-{
+static auto fields{substrate::make_array<hf_register_info>({
 	{
 		&hfFlagsType,
 		{
@@ -272,7 +282,7 @@ static hf_register_info fields[] =
 			FT_BYTES, BASE_NONE, nullptr, 0, "N5305A reassembled frame data", HFILL
 		}
 	}
-};
+})};
 
 static const fragment_items n5305aFrameItems =
 {

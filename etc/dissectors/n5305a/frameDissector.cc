@@ -66,7 +66,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			if (fragment->next->frame == pinfo->num) {
 				/* This should be the first frame in the reassembly? */
 				buffer_offset = 4;
-				proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
+				proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags.data(), ENC_BIG_ENDIAN);
 				proto_tree_add_item(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN);
 			}
 
@@ -115,7 +115,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	len = tvb_captured_length(buffer);
 	const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 	// If we get here, the packet is fresh for dessecting and offering up to the transaction dissector
-	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags.data(), ENC_BIG_ENDIAN);
 	uint32_t packetLength;
 	proto_tree_add_item_ret_uint(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN, &packetLength);
 	proto_item_append_text(protocol, ", Len: %u", packetLength);
@@ -146,8 +146,8 @@ void registerProtocolN5305AFraming()
 		"n5305a.frame"
 	);
 
-	proto_register_field_array(protoN5305AFraming, fields, array_length(fields));
-	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(protoN5305AFraming, fields.data(), fields.size());
+	proto_register_subtree_array(ett.data(), ett.size());
 	reassembly_table_register(&frameReassemblyTable, &addresses_ports_reassembly_table_functions);
 
 	dirHost = create_tvb_from_string(dirHostStr);
