@@ -15,7 +15,7 @@ static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo
 	proto_tree *const subtree, const uint16_t packetLength)
 {
 	uint32_t status;
-	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfStatus, buffer, 4, 4, ENC_BIG_ENDIAN, &status);
+	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfStatus, buffer, 0, 4, ENC_BIG_ENDIAN, &status);
 	if (!status)
 		proto_item_set_text(statusItem, "Status: OK");
 	return 4;
@@ -52,7 +52,7 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo,
 	else
 		consumed = dissectHost(n5305aBuffer, pinfo, subtree, packetLength);
 
-	if (consumed != packetLength)
+	if (consumed + 4U != packetLength)
 		proto_tree_add_item(subtree, hfRawData, n5305aBuffer, consumed, -1, ENC_NA);
 	return packetLength;
 }
