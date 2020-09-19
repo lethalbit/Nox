@@ -1,5 +1,5 @@
-#include "dissectors.h"
-#include "transactionFields.h"
+#include "dissectors.hh"
+#include "transactionFields.hh"
 
 dissector_handle_t transactionDissector;
 static const char *const dirHostStr = "To Host";

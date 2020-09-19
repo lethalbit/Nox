@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <optional>
 #include <utility>
-#include "dissectors.h"
+#include "dissectors.hh"
 #include "frameFields.hh"
 #include <epan/proto_data.h>
 

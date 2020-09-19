@@ -1,6 +1,6 @@
 #include <epan/packet.h>
 #include <ws_version.h>
-#include "dissectors.h"
+#include "dissectors.hh"
 
 extern "C"
 {

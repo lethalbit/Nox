@@ -1,7 +1,7 @@
 #ifndef N5305A_DISSESCTOR__H
 #define N5305A_DISSESCTOR__H
 
-#include <stdint.h>
+#include <cstdint>
 #include <epan/packet.h>
 
 static int protoN5305ATransact = -1;
