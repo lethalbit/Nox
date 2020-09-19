@@ -1,6 +1,6 @@
 project(
 	'Nox',
-	['c', 'cpp'],
+	'cpp',
 	default_options: [
 		'cpp_std=gnu++17',
 		'warning_level=3',
@@ -11,7 +11,6 @@ project(
 	version: '0.0.1'
 )
 
-c = meson.get_compiler('c')
 cxx = meson.get_compiler('cpp')
 
 extra_args = [
