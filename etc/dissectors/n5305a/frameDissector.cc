@@ -5,10 +5,23 @@
 #include "frameFields.hh"
 #include <epan/proto_data.h>
 
-// List of frames in active reconstruction
+// Frame in active reconstruction
 std::optional<frameFragment_t> frameFragment{};
 // Table of all reconstructed frames
 reassembly_table frameReassemblyTable{};
+
+// Transaction in active reconstruction
+std::optional<transactFragment_t> transactFragment{};
+// Table of all reconstructed transactions
+reassembly_table transactReassemblyTable{};
+
+std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, proto_tree *const tree)
+{
+	proto_item *protocol{};
+	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305ATransact,
+		&protocol, "N5305A Protocol Analyzer Transaction");
+	return std::make_pair(subtree, protocol);
+}
 
 int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, const uint16_t frameFlags)
 {
@@ -138,6 +151,12 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	return dissectFrame(frameBuffer, pinfo, tree, tvb_get_ntohs(buffer, 0));
 }
 
+inline tvbuff_t *create_tvb_from_string(const char *const str)
+{
+	const size_t len = strlen(str) + 1;
+	return tvb_new_real_data((const uint8_t *)str, len, len);
+}
+
 void registerProtocolN5305AFraming()
 {
 	protoN5305AFraming = proto_register_protocol(
@@ -149,6 +168,7 @@ void registerProtocolN5305AFraming()
 	proto_register_field_array(protoN5305AFraming, fields.data(), fields.size());
 	proto_register_subtree_array(ett.data(), ett.size());
 	reassembly_table_register(&frameReassemblyTable, &addresses_ports_reassembly_table_functions);
+	reassembly_table_register(&transactReassemblyTable, &addresses_ports_reassembly_table_functions);
 
 	dirHost = create_tvb_from_string(dirHostStr);
 	dirAnalyzer = create_tvb_from_string(dirAnalyzerStr);

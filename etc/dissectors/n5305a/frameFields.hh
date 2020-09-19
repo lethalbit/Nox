@@ -55,11 +55,27 @@ static int32_t hfFrameReassembledIn = -1;
 static int32_t hfFrameReassembledLength = -1;
 static int32_t hfFrameReassembledData = -1;
 
-static std::array<int32_t*, 4> ett{
+static int32_t ettTransactFragment = -1;
+static int32_t ettTransactFragments = -1;
+static int32_t hfTransactFragment = -1;
+static int32_t hfTransactFragments = -1;
+static int32_t hfTransactFragmentOverlap = -1;
+static int32_t hfTransactFragmentOverlapConflict = -1;
+static int32_t hfTransactMultipleTails = -1;
+static int32_t hfTransactTooLongFragment = -1;
+static int32_t hfTransactFragmentError = -1;
+static int32_t hfTransactFragmentCount = -1;
+static int32_t hfTransactReassembledIn = -1;
+static int32_t hfTransactReassembledLength = -1;
+static int32_t hfTransactReassembledData = -1;
+
+static std::array<int32_t*, 6> ett{
 	&ettN5305AFrame,
 	&ettFrameFlags,
 	&ettFrameFragment,
-	&ettFrameFragments
+	&ettFrameFragments,
+	&ettTransactFragment,
+	&ettTransactFragments
 };
 
 static auto fields{substrate::make_array<hf_register_info>({
@@ -281,6 +297,85 @@ static auto fields{substrate::make_array<hf_register_info>({
 			"Reassembled frame data", "n5305a.frame.reassembled.data",
 			FT_BYTES, BASE_NONE, nullptr, 0, "N5305A reassembled frame data", HFILL
 		}
+	},
+
+	{
+		&hfTransactFragment,
+		{
+			"N5305A Frame Fragment", "n5305a.frame.frag",
+			FT_FRAMENUM, BASE_NONE, nullptr, 0, "N5305A frame fragment", HFILL
+		}
+	},
+	{
+		&hfTransactFragments,
+		{
+			"Reassembled N5305A Frame Fragments", "n5305a.frame.fragments",
+			FT_NONE, BASE_NONE, nullptr, 0, "N5305A frame fragments", HFILL
+		}
+	},
+	{
+		&hfTransactFragmentOverlap,
+		{
+			"Segment overlap", "n5305a.frame.frag.overlap",
+			FT_BOOLEAN, BASE_NONE, nullptr, 0, "N5305A frame fragments overlap", HFILL
+		}
+	},
+	{
+		&hfTransactFragmentOverlapConflict,
+		{
+			"Conflicting data in segment overlap", "n5305a.frame.frag.overlap.conflict",
+			FT_BOOLEAN, BASE_NONE, nullptr, 0, "N5305A frame fragment overlap conflict", HFILL
+		}
+	},
+	{
+		&hfTransactMultipleTails,
+		{
+			"Multiple tail segments found", "n5305a.frame.frag.multiple_tails",
+			FT_BOOLEAN, BASE_NONE, nullptr, 0, "N5305A frame fragment multiple tails", HFILL
+		}
+	},
+	{
+		&hfTransactTooLongFragment,
+		{
+			"Segment too long", "n5305a.frame.frag.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, nullptr, 0, "N5305A frame fragment is too long", HFILL
+		}
+	},
+	{
+		&hfTransactFragmentError,
+		{
+			"Reassembling error", "n5305a.frame.frag.error",
+			FT_FRAMENUM, BASE_NONE, nullptr, 0, "N5305A Frame fragment error", HFILL
+		}
+	},
+	{
+		&hfTransactFragmentCount,
+		{
+			"N5305A Frame Fragment Count", "n5305a.frame.fragment_count",
+			FT_UINT32, BASE_DEC, nullptr, 0, "N5305A frame fragment count", HFILL
+		}
+	},
+
+	{
+		&hfTransactReassembledIn,
+		{
+			"Reassembled frame in segment", "n5305a.frame.reassembled_in",
+			FT_FRAMENUM, BASE_NONE, nullptr, 0, "N5305A frame reassembled in", HFILL
+		}
+	},
+	{
+		&hfTransactReassembledLength,
+		{
+			"Reassembled frame length", "n5305a.frame.reassembled.length",
+			FT_UINT32, BASE_HEX_DEC, nullptr, 0, "N5305A reassembled frame length", HFILL
+		}
+	},
+	{
+		&hfTransactReassembledData,
+		{
+			"Reassembled frame data", "n5305a.frame.reassembled.data",
+			FT_BYTES, BASE_NONE, nullptr, 0, "N5305A reassembled frame data", HFILL
+		}
 	}
 })};
 
@@ -305,11 +400,26 @@ static const fragment_items n5305aFrameItems =
 	"Frame fragments"
 };
 
-static inline tvbuff_t *create_tvb_from_string(const char *const str)
+static const fragment_items n5305aTransactItems =
 {
-	const size_t len = strlen(str) + 1;
-	return tvb_new_real_data((const uint8_t *)str, len, len);
-}
+	&ettTransactFragment,
+	&ettTransactFragments,
+
+	&hfTransactFragments,
+	&hfTransactFragment,
+	&hfTransactFragmentOverlap,
+	&hfTransactFragmentOverlapConflict,
+	&hfTransactMultipleTails,
+	&hfTransactTooLongFragment,
+	&hfTransactFragmentError,
+	&hfTransactFragmentCount,
+
+	&hfTransactReassembledIn,
+	&hfTransactReassembledLength,
+	&hfTransactReassembledData,
+
+	"Transaction fragments"
+};
 
 struct frameFragment_t
 {
@@ -334,10 +444,11 @@ struct frameFragment_t
 struct transactFragment_t
 {
 	uint16_t transactCookie;
+	uint32_t length;
 	uint16_t *cookiePointer;
 
-	transactFragment_t(const uint16_t cookie) noexcept :
-		transactCookie{cookie}, cookiePointer
+	transactFragment_t(const uint16_t cookie, const uint32_t len) noexcept :
+		transactCookie{cookie}, length{len}, cookiePointer
 		{
 			[](const uint16_t transactCookie)
 			{
