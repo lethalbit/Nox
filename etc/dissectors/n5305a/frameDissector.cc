@@ -32,7 +32,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 	return len;
 }
 
-std::pair<proto_tree *, proto_item *>beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
+std::pair<proto_tree *, proto_item *> beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
 	proto_tree *const tree)
 {
 	proto_item *protocol{};
@@ -75,9 +75,9 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Frame #%u] %s, Size %u", frameNumber, dirStr, len);
 
-			int buffer_offset{0};
+			int32_t buffer_offset{0};
+			// Make the first frame reassembled look nice with the header
 			if (fragment->next->frame == pinfo->num) {
-				/* This should be the first frame in the reassembly? */
 				buffer_offset = 4;
 				proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags.data(), ENC_BIG_ENDIAN);
 				proto_tree_add_item(subtree, hfPacketLength, buffer, 2, 2, ENC_BIG_ENDIAN);
@@ -103,8 +103,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Fragmented frame, Size %hu", dirStr, len);
 			frame.length += len;
-			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
-				NULL, offset, len, TRUE);
+			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber, nullptr, offset, len, TRUE);
 			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]");
 			proto_tree_add_item(subtree, hfFrameData, buffer, 0, -1, ENC_NA);
