@@ -7,7 +7,7 @@ static const char *const dirAnalyzerStr = "To Analyzer";
 
 uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 {
-	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettTransactFlags, hfFlags, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettTransactFlags, hfFlags.data(), ENC_BIG_ENDIAN);
 	return tvb_get_ntohs(buffer, 0);
 }
 
@@ -64,8 +64,8 @@ void registerProtocolN5305ATransaction()
 		"n5305a.protocol_analyzer"
 	);
 
-	proto_register_field_array(protoN5305ATransact, fields, array_length(fields));
-	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(protoN5305ATransact, fields.data(), fields.size());
+	proto_register_subtree_array(ett.data(), ett.size());
 }
 
 void registerDissectorN5305ATransaction()

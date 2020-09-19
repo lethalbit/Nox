@@ -7,6 +7,6 @@ shared_library(
 	n5305a_srcs,
 	name_prefix: '',
 	cpp_args: ['-DWS_BUILD_DLL', '-DHAVE_PLUGINS'],
-	dependencies: [wireshark],
+	dependencies: [ wireshark, substrate_dep ],
 	gnu_default_visibility: 'inlineshidden'
 )
