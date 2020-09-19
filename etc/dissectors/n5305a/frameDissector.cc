@@ -52,7 +52,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		if (fragment->reassembled_in != pinfo->num)
 		{
 			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
-			col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragmented Transaction #%hu]", cookie);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragmented Transaction 0x%04X]", cookie);
 
 			int32_t buffer_offset{0};
 			// Make the first frame reassembled look nice with the header
@@ -69,7 +69,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		}
 		buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
 			&n5305aTransactItems, NULL, tree);
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [Transaction #%hu]", cookie);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " [Transaction 0x%04X]", cookie);
 	}
 	// If we have an active reconstruction, check if this packet would complete the reassembly
 	else if (transactFragment)
@@ -81,14 +81,14 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		if (!(frameFlags & 0x8000))
 		{
 			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction 0x%04X]", cookie);
 			transact.length += len;
 			fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, offset, len, TRUE);
 			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
 			proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
 			return len;
 		}
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Transaction #%hu]", cookie);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Transaction 0x%04X]", cookie);
 		fragment = fragment_add_check(&transactReassemblyTable, buffer, 0, pinfo, cookie,
 			nullptr, offset, len, FALSE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
@@ -106,7 +106,7 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 	{
 		const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
 		const uint16_t cookie = tvb_get_ntohs(buffer, 2);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction #%hu]", cookie);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction 0x%04X]", cookie);
 		transactFragment_t transact{cookie, len};
 		transactFragment = transact;
 		fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, 0, len, TRUE);
