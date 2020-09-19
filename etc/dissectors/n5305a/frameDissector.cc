@@ -136,7 +136,7 @@ std::pair<proto_tree *, proto_item *> beginFrameSubtree(tvbuff_t *buffer, packet
 
 int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
 {
-	/* Skip zero length packets mismatched lengths */
+	/* Skip zero length or mismatched length packets */
 	uint32_t len = tvb_captured_length(buffer);
 	if (!len || len != tvb_reported_length(buffer))
 		return 0;
@@ -160,7 +160,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	/* Set the direction string based on if we are coming from for going to the source port */
 	auto *const dirStr = pinfo->srcport == 1029 ? dirHostStr : dirAnalyzerStr;
 
-	/* If the fragment has been reassembled */
+	/* If the frame has been reassembled */
 	if (fragment)
 	{
 		/* Extract the frame number */
@@ -199,7 +199,6 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		/* Set info column text appropriately */
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[Frame #%u (%u)]", frameNumber, tvb_captured_length(buffer));
 	}
-	// If we have an active reconstruction, check if this packet would complete the reassembly
 	/* If we are in the middle of reassembly and we have a valid frame */
 	/* If we are in the first pass of the reassembly, all frames from the wireshark TCP dissector will be provided in order */
 	else if (frameFragment)
@@ -209,7 +208,6 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		/* frame.length is the amount of data seen thus far, not the total length of the frame */
 		/* thus is the same an offset into the total frame */
 		const auto offset{frame.length};
-		// If the packet does not complete the reassembly, quick exit plz
 		/* If this packet does not complete the frame reassembly */
 		if (offset + len < frame.totalLength)
 		{
@@ -223,7 +221,6 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			fragment_add(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber, nullptr, offset, len, TRUE);
 			/* Add frame pointer into protocol specific data's slot 0 the frame pointer */
 			p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
-			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A frame]"); /* TODO: Delete? */
 			/* Add raw frame data to tree */
 			proto_tree_add_item(subtree, hfFrameData, buffer, 0, -1, ENC_NA);
 			/* Signal to the TCP dissector that we've completed processing this packet */
@@ -231,7 +228,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		}
 
 		/* Append column info with the total length of the reassembled frame  */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Frame, Size %hu", dirStr, len); /* TODO: replace len with frame.totalLength */
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Frame, Size %hu", dirStr, frame.totalLength);
 		/* fragment_add doesn't not deal with completed reassembly, therefore we need to use the check version */
 		/* The FALSE indicates that the call will add the fully reassembled frame to the reassembled section of the reassembly table */
 		fragment = fragment_add_check(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
@@ -241,7 +238,7 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		/* If we have a valid resembled frame */
 		if (fragment) {
 			/* 1: Inserts the appropriate tree reassembly metadata */
-			/* 2: Using the given buffer, it finds the fully assembled tvb and returns it */
+			/* 2: Using the given buffer, it creates the fully assembled tvb and returns it */
 			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Frame", fragment,
 				&n5305aFrameItems, NULL, tree);
 		} else {
@@ -267,7 +264,6 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 	len = tvb_captured_length(buffer);
 	/* Generate and attach protocol metadata */
 	const auto &[subtree, protocol] = beginFrameSubtree(buffer, pinfo, tree);
-	// If we get here, the packet is fresh for dessecting and offering up to the transaction dissector
 	/* Added the flags and length from the framing protocol that were in the very first fragment for this total frame */
 	proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettFrameFlags, hfFlags.data(), ENC_BIG_ENDIAN);
 	uint32_t packetLength;
@@ -294,7 +290,8 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		return len;
 	}
 
-	/* If we are in the first pass have not begun a reassembled frame or in the second pass and did not get a reassembled frame   */
+	/* If we get here, the packet is fresh for dessecting and offering up to the transaction dissector */
+	/* If we are in the first pass and have not begun a reassembled frame or in the second pass and did not get a reassembled frame */
 	if (!fragment) {
 		/* Set the info column string to decorate the frame uniquely */
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[Frame #%u (%u)]", pinfo->num, len);
@@ -330,7 +327,7 @@ void registerProtocolN5305AFraming()
 	/* Register the appropriate reassembly tables for the frames and transactions */
 	/* addresses_ports_reassembly_table_functions is the hashing and lookup functions for the reassembly table */
 	/* This indicates that we care about the address, port, and data, there exists another which only stores the */
-	/* address and port. */
+	/* address and data. */
 	reassembly_table_register(&frameReassemblyTable, &addresses_ports_reassembly_table_functions);
 	reassembly_table_register(&transactReassemblyTable, &addresses_ports_reassembly_table_functions);
 
