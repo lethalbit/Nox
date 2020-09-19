@@ -6,6 +6,13 @@
 
 #include <cstdint>
 #include <epan/packet.h>
+#include <ws_version.h>
+
+#if WIRESHARK_VERSION_MAJOR >= 3 && WIRESHARK_VERSION_MINOR > 2
+#define BITMASK_CONST
+#else
+#define BITMASK_CONST const
+#endif
 
 static int32_t protoN5305ATransact = -1;
 static int32_t ettN5305ATransact = -1;
@@ -19,7 +26,7 @@ static std::array<int32_t, 16> flags{
 	-1, -1, -1, -1
 };
 
-static std::array<int32_t*, 17> hfFlags{
+static std::array<BITMASK_CONST int32_t*, 17> hfFlags{
 	&flags[0],  &flags[1],  &flags[2],  &flags[3],
 	&flags[4],  &flags[5],  &flags[6],  &flags[7],
 	&flags[8],  &flags[9],  &flags[10], &flags[11],

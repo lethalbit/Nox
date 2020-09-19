@@ -10,6 +10,13 @@ extern "C"
 {
 #include <epan/reassemble.h>
 }
+#include <ws_version.h>
+
+#if WIRESHARK_VERSION_MAJOR >= 3 && WIRESHARK_VERSION_MINOR > 2
+#define BITMASK_CONST
+#else
+#define BITMASK_CONST const
+#endif
 
 static const char *const dirHostStr = "To Host";
 static tvbuff_t *dirHost = nullptr;
@@ -29,7 +36,7 @@ static std::array<int32_t, 16> flags{
 	-1, -1, -1, -1
 };
 
-static std::array<int32_t*, 17> hfFlags{
+static std::array<BITMASK_CONST int32_t*, 17> hfFlags{
 	&flags[0],  &flags[1],  &flags[2],  &flags[3],
 	&flags[4],  &flags[5],  &flags[6],  &flags[7],
 	&flags[8],  &flags[9],  &flags[10], &flags[11],
