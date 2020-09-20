@@ -47,13 +47,27 @@ inline std::pair<uint32_t, const char *>
 	const char *data{};
 	proto_tree_add_item_ret_string(message, hfMessageData, buffer, offset + 4, length, ENC_ASCII,
 		wmem_file_scope(), reinterpret_cast<const uint8_t **>(&data));
-	return {length + 4, data};
+	const auto realignment{4 + ((4 - (length % 4)) % 4)};
+	return {length + realignment, data};
 }
 
 inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages, uint32_t offset)
 {
 	const auto &[length, message] = readMessage(buffer, messages, offset);
 	offset += length;
+	if (length == 8 && memcmp(message, "ln", 2) == 0)
+	{
+		for (uint32_t i{0}; i < 2; ++i)
+		{
+			const auto &[length, _] = readMessage(buffer, messages, offset);
+			offset += length;
+		}
+	}
+	else if (length != 8)
+	{
+		const auto &[length, _] = readMessage(buffer, messages, offset);
+		offset += length;
+	}
 	return offset;
 }
 
