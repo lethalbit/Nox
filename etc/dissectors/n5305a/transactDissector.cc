@@ -43,9 +43,9 @@ inline std::pair<uint32_t, const void *>
 
 inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages, uint32_t offset)
 {
-	const auto &[length, message] = readMessage(buffer, messages, offset);
-	offset += length;
-	if (length == 8 && memcmp(message, "ln", 2) == 0)
+	const auto &[firstLength, message] = readMessage(buffer, messages, offset);
+	offset += firstLength;
+	if (firstLength == 8 && memcmp(message, "ln", 2) == 0)
 	{
 		for (uint32_t i{0}; i < 2; ++i)
 		{
@@ -53,7 +53,7 @@ inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages,
 			offset += length;
 		}
 	}
-	else if (length != 8)
+	else if (firstLength != 8)
 	{
 		const auto &[length, _] = readMessage(buffer, messages, offset);
 		offset += length;
