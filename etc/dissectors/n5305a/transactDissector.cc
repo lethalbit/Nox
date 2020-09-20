@@ -27,16 +27,16 @@ inline uint32_t readEmptyMessages(tvbuff_t *const buffer, proto_tree *const mess
 	return offset;
 }
 
-inline std::pair<uint32_t, const char *>
+inline std::pair<uint32_t, const void *>
 	readMessage(tvbuff_t *const buffer, proto_tree *const messages, const uint32_t offset)
 {
 	proto_item *item{};
 	const auto length{tvb_get_ntohl(buffer, offset)};
 	auto *const message{proto_tree_add_subtree(messages, buffer, 0, length + 4, ettMessage, &item, "Message")};
 	proto_tree_add_item(message, hfMessageLength, buffer, offset, 4, ENC_BIG_ENDIAN);
-	const char *data{};
-	proto_tree_add_item_ret_string(message, hfMessageData, buffer, offset + 4, length, ENC_ASCII,
-		wmem_file_scope(), reinterpret_cast<const uint8_t **>(&data));
+	const uint8_t *data{};
+	proto_tree_add_item_ret_string(message, hfMessageData, buffer, offset + 4, length,
+		ENC_ASCII, wmem_file_scope(), &data);
 	const auto realignment{4 + ((4 - (length % 4)) % 4)};
 	return {length + realignment, data};
 }
