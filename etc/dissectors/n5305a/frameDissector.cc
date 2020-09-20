@@ -92,14 +92,18 @@ int dissectFrame(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const t
 		fragment = fragment_add_check(&transactReassemblyTable, buffer, 0, pinfo, cookie,
 			nullptr, offset, len, FALSE);
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 1, transact.cookiePointer);
-		if (fragment)
+		if (fragment) {
 			buffer = process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
 				&n5305aTransactItems, nullptr, tree);
-		else
+		} else {
 			printf("Error: fragment_add_check() returned nullptr for transaction reassembly (0x%04X)\n", cookie);
+		}
+
 		transactFragment.reset();
-		if (!fragment || !buffer)
+		if (!fragment || !buffer){
+			printf("Error: dissectFrame(%u): fragment or buffer is invalid, dazed and confused\n", cookie);
 			return len;
+		}
 	}
 
 	if (!PINFO_FD_VISITED(pinfo) && !(frameFlags & 0x8000U))
@@ -253,8 +257,9 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 				&n5305aFrameItems, NULL, tree);
 		} else {
 			/* For some reason the fragment check return properly print an error */
-			puts("Error: fragment_add_check() return nullptr for frame reassembly");
+			printf("Error: fragment_add_check() returned nullptr for transaction reassembly (%u)\n", frameNumber);
 		}
+
 		/* If we are in a invalid state return this packet */
 		if (!fragment || !buffer) {
 			printf("Error: dissectFraming(%u): fragment or buffer is invalid, dazed and confused\n", frameNumber);

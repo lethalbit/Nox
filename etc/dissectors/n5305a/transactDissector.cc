@@ -12,7 +12,7 @@ uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 }
 
 static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const subtree, const uint16_t packetLength)
+	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie)
 {
 	uint32_t status;
 	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfTransactStatus,
@@ -72,14 +72,17 @@ inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages,
 }
 
 static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const subtree, const uint16_t packetLength)
+	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie)
 {
-	proto_item *item{};
-	auto *const messages{proto_tree_add_subtree(subtree, buffer, 0, -1, ettMessages, &item, "Messages")};
-	auto offset{readEmptyMessages(buffer, messages)};
-	offset = readMessages(buffer, messages, offset);
-	proto_item_set_len(item, offset);
-	return offset;
+	if (cookie) {
+		proto_item *item{};
+		auto *const messages{proto_tree_add_subtree(subtree, buffer, 0, -1, ettMessages, &item, "Messages")};
+		auto offset{readEmptyMessages(buffer, messages)};
+		offset = readMessages(buffer, messages, offset);
+		proto_item_set_len(item, offset);
+		return offset;
+	}
+	return 0;
 }
 
 static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
@@ -100,11 +103,10 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, pro
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
 
 	tvbuff_t *const n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
-	uint16_t consumed = 0;
-	if (pinfo->srcport == 1029)
-		consumed = dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength);
-	else
-		consumed = dissectHost(n5305aBuffer, pinfo, subtree, packetLength);
+
+	const uint16_t consumed = (pinfo->srcport == 1029) ?
+		dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength, cookie) :
+		dissectHost(n5305aBuffer, pinfo, subtree, packetLength, cookie);
 
 	if (consumed + 4U != packetLength)
 		proto_tree_add_item(subtree, hfTransactData, n5305aBuffer, consumed, -1, ENC_NA);
