@@ -11,16 +11,6 @@ uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 	return tvb_get_ntohs(buffer, 0);
 }
 
-static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie)
-{
-	uint32_t status;
-	proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfTransactStatus,
-		buffer, 0, 4, ENC_BIG_ENDIAN, &status);
-	if (!status)
-		proto_item_set_text(statusItem, "Status: OK");
-	return 4;
-}
 
 inline uint32_t readEmptyMessages(tvbuff_t *const buffer, proto_tree *const messages)
 {
@@ -71,10 +61,26 @@ inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages,
 	return offset;
 }
 
-static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
-	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie)
+static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
+	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
 {
-	if (cookie) {
+	if (cookie == 1 && !(flags & 0x8000U)) {
+		const auto &[length, message] = readMessage(buffer, subtree, 0);
+		return length;
+	} else {
+		uint32_t status{};
+		proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfTransactStatus,
+			buffer, 0, 4, ENC_BIG_ENDIAN, &status);
+		if (!status)
+			proto_item_set_text(statusItem, "Status: OK");
+		return 4;
+	}
+}
+
+static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
+	proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
+{
+	if (cookie || flags) {
 		proto_item *item{};
 		auto *const messages{proto_tree_add_subtree(subtree, buffer, 0, -1, ettMessages, &item, "Messages")};
 		auto offset{readEmptyMessages(buffer, messages)};
@@ -96,7 +102,6 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, pro
 		&protocol, "N5305A Protocol Analyzer Transaction");
 
 	const uint16_t flags = extractFlags(buffer, subtree);
-	(void)flags;
 	uint32_t cookie;
 	proto_tree_add_item_ret_uint(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
 	proto_item_append_text(protocol, ", Cookie: 0x%04X", cookie);
@@ -105,8 +110,8 @@ static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, pro
 	tvbuff_t *const n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
 
 	const uint16_t consumed = (pinfo->srcport == 1029) ?
-		dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength, cookie) :
-		dissectHost(n5305aBuffer, pinfo, subtree, packetLength, cookie);
+		dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength, cookie, flags) :
+		dissectHost(n5305aBuffer, pinfo, subtree, packetLength, cookie, flags);
 
 	if (consumed + 4U != packetLength)
 		proto_tree_add_item(subtree, hfTransactData, n5305aBuffer, consumed, -1, ENC_NA);
