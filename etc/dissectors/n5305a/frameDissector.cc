@@ -21,7 +21,7 @@ std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, pro
 	proto_item *protocol{};
 	proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305ATransact,
 		&protocol, "N5305A Protocol Analyzer Transaction");
-	return std::make_pair(subtree, protocol);
+	return {subtree, protocol};
 }
 
 /* Take the completed frame from frame reassembly and attempt to reassemble the underlying transactional data */
@@ -130,7 +130,7 @@ std::pair<proto_tree *, proto_item *> beginFrameSubtree(tvbuff_t *buffer, packet
 		&protocol, "N5305A Protocol Analyzer Frame");
 	auto *const frame_direction = proto_tree_add_item(subtree, hfPacketDirection, pinfo->srcport == 1029 ? dirHost : dirAnalyzer, 0, -1, ENC_ASCII);
 	PROTO_ITEM_SET_GENERATED(frame_direction);
-	return std::make_pair(subtree, protocol);
+	return {subtree, protocol};
 }
 
 int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
