@@ -231,9 +231,20 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 		/* fragment_add doesn't not deal with completed reassembly, therefore we need to use the check version */
 		/* The FALSE indicates that the call will add the fully reassembled frame to the reassembled section of the reassembly table */
 		fragment = fragment_add_check(&frameReassemblyTable, buffer, 0, pinfo, frame.frameNumber,
-			NULL, offset, len, FALSE);
+			NULL, offset, frame.totalLength - offset, FALSE);
 		/* Add frame pointer into protocol specific data's slot 0 the frame pointer */
 		p_add_proto_data(wmem_file_scope(), pinfo, protoN5305AFraming, 0, frame.framePointer);
+		/* Save this frame's number for  */
+		const auto frameNumber{frame.frameNumber};
+		/* reset frame reassembly state */
+		frameFragment.reset();
+
+		if (offset + len > frame.totalLength)
+		{
+			const auto fragmentOffset{frame.totalLength - offset};
+			auto *const fragmentBuffer{tvb_new_subset_length(buffer, fragmentOffset, len - fragmentOffset)};
+			dissectFraming(fragmentBuffer, pinfo, tree, nullptr);
+		}
 		/* If we have a valid resembled frame */
 		if (fragment) {
 			/* 1: Inserts the appropriate tree reassembly metadata */
@@ -244,9 +255,6 @@ int dissectFraming(tvbuff_t *buffer, packet_info *const pinfo, proto_tree *const
 			/* For some reason the fragment check return properly print an error */
 			puts("Error: fragment_add_check() return nullptr for frame reassembly");
 		}
-		const auto frameNumber{frame.frameNumber};
-		/* reset frame reassembly state */
-		frameFragment.reset();
 		/* If we are in a invalid state return this packet */
 		if (!fragment || !buffer) {
 			printf("Error: dissectFraming(%u): fragment or buffer is invalid, dazed and confused\n", frameNumber);
