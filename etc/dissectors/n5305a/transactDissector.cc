@@ -22,10 +22,50 @@ static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo
 	return 4;
 }
 
+inline uint32_t readEmptyMessages(tvbuff_t *const buffer, proto_tree *const messages)
+{
+	const uint32_t bufferLength{tvb_captured_length(buffer)};
+	uint32_t offset{0};
+	while (offset < bufferLength)
+	{
+		const uint32_t length = tvb_get_ntohl(buffer, offset);
+		if (length)
+			break;
+		proto_tree_add_item(messages, hfEmptyMessage, buffer, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+	}
+	return offset;
+}
+
+inline std::pair<uint32_t, const char *>
+	readMessage(tvbuff_t *const buffer, proto_tree *const messages, const uint32_t offset)
+{
+	proto_item *item{};
+	const auto length{tvb_get_ntohl(buffer, offset)};
+	auto *const message{proto_tree_add_subtree(messages, buffer, 0, length + 4, ettMessage, &item, "Message")};
+	proto_tree_add_item(message, hfMessageLength, buffer, offset, 4, ENC_BIG_ENDIAN);
+	const char *data{};
+	proto_tree_add_item_ret_string(message, hfMessageData, buffer, offset + 4, length, ENC_ASCII,
+		wmem_file_scope(), reinterpret_cast<const uint8_t **>(&data));
+	return {length + 4, data};
+}
+
+inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages, uint32_t offset)
+{
+	const auto &[length, message] = readMessage(buffer, messages, offset);
+	offset += length;
+	return offset;
+}
+
 static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
 	proto_tree *const subtree, const uint16_t packetLength)
 {
-	return 0;
+	proto_item *item{};
+	auto *const messages{proto_tree_add_subtree(subtree, buffer, 0, -1, ettMessages, &item, "Messages")};
+	auto offset{readEmptyMessages(buffer, messages)};
+	offset = readMessages(buffer, messages, offset);
+	proto_item_set_len(item, offset);
+	return offset;
 }
 
 static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const)

@@ -17,6 +17,8 @@
 static int32_t protoN5305ATransact = -1;
 int32_t ettN5305ATransact = -1;
 static int32_t ettTransactFlags = -1;
+static int32_t ettMessages = -1;
+static int32_t ettMessage = -1;
 
 static int32_t hfFlagsType = -1;
 static std::array<int32_t, 16> flags{
@@ -36,12 +38,17 @@ static std::array<BITMASK_CONST int32_t*, 17> hfFlags{
 
 int32_t hfTransactCookie = -1;
 static int32_t hfTransactStatus = -1;
+static int32_t hfEmptyMessage = -1;
+static int32_t hfMessageLength = -1;
+static int32_t hfMessageData = -1;
 int32_t hfTransactData = -1;
 
-static std::array<int32_t*, 2> ett{
+static auto ett{substrate::make_array<int32_t *>({
 	&ettN5305ATransact,
-	&ettTransactFlags
-};
+	&ettTransactFlags,
+	&ettMessages,
+	&ettMessage
+})};
 
 static auto fields{substrate::make_array<hf_register_info>({
 	{
@@ -175,6 +182,27 @@ static auto fields{substrate::make_array<hf_register_info>({
 		{
 			"Status", "n5305a.protocol_analyzer.status",
 			FT_UINT32, BASE_HEX_DEC, nullptr, 0, nullptr, HFILL
+		}
+	},
+	{
+		&hfEmptyMessage,
+		{
+			"Empty message", "n5305a.protocol_analyzer.messages.empty_message",
+			FT_UINT32, BASE_DEC, nullptr, 0, nullptr, HFILL
+		}
+	},
+	{
+		&hfMessageLength,
+		{
+			"Message Length", "n5305a.protocol_analyzer.messages.message_length",
+			FT_UINT32, BASE_DEC_HEX, nullptr, 0, nullptr, HFILL
+		}
+	},
+	{
+		&hfMessageData,
+		{
+			"Message Data", "n5305a.protocol_analyzer.messages.message_data",
+			FT_STRING, STR_ASCII, nullptr, 0, nullptr, HFILL
 		}
 	},
 	{
