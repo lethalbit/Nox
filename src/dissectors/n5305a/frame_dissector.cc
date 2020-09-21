@@ -2,7 +2,7 @@
 #include <optional>
 #include <utility>
 #include "dissectors.hh"
-#include "frameFields.hh"
+#include "frame_fields.hh"
 #include <epan/proto_data.h>
 
 // Frame in active reconstruction

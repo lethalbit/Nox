@@ -1,5 +1,7 @@
 n5305a_srcs = [
-	'n5305a.cc', 'frameDissector.cc', 'transactDissector.cc'
+	'n5305a.cc',
+	'frame_dissector.cc',
+	'transact_dissector.cc'
 ]
 
 ws_version = wireshark.version()
