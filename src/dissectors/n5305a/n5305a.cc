@@ -1,7 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/* n5305a.cc - Nox N5305A  Wireshark Plugin */
 #include <epan/packet.h>
-#include "dissectors.hh"
 
+#include <dissectors.hh>
+
+#include <transaction_dissector.hh>
 #include <frame_reassembly.hh>
+
 
 extern "C"
 {
@@ -16,7 +21,7 @@ const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
 const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 
 namespace n5305a_fr = Nox::Wireshark::N5305A::FrameReassembly;
-// namespace n5305a_tx = Nox::Wireshark::N5305A::TransactionDissector;
+namespace n5305a_tx = Nox::Wireshark::N5305A::TransactionDissector;
 
 /* register the native wireshark plugin */
 void plugin_register()
@@ -26,8 +31,8 @@ void plugin_register()
 	static proto_plugin transaction_dissector;
 
 	/* Same as above but for the transaction dissector */
-	transaction_dissector.register_protoinfo = registerProtocolN5305ATransaction;
-	transaction_dissector.register_handoff = registerDissectorN5305ATransaction;
+	transaction_dissector.register_protoinfo = n5305a_tx::register_protoinfo;
+	transaction_dissector.register_handoff = n5305a_tx::register_handoff;
 	proto_register_plugin(&transaction_dissector);
 
 	/* Set the appropriate entry points for the frame dissectors  */

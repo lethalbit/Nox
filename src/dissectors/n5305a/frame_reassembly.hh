@@ -479,4 +479,3 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 }
 
 #endif /* N5305A_FRAME_REASSEMBLY_HH */
-

@@ -1,4 +1,7 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+/* frame_reassembly.cc - Nox N5305A Frame Reassembly Wireshark Plugin */
 
+#include <transaction_dissector.hh>
 #include <frame_reassembly.hh>
 
 #include <cstdio>
@@ -9,6 +12,8 @@
 #include <epan/proto_data.h>
 
 using Nox::Wireshark::Common::create_tvb_from_string;
+
+namespace n5305a_tx = Nox::Wireshark::N5305A::TransactionDissector;
 
 namespace Nox::Wireshark::N5305A::FrameReassembly {
 	// Frame in active reconstruction
@@ -25,7 +30,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 	std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, proto_tree *const tree)
 	{
 		proto_item *protocol{};
-		proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305ATransact,
+		proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, n5305a_tx::ettN5305ATransact,
 			&protocol, "N5305A Protocol Analyzer Transaction");
 		return {subtree, protocol};
 	}
@@ -65,10 +70,10 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 				if (fragment->next->frame == pinfo->num) {
 					/* This should be the first frame in the reassembly? */
 					buffer_offset = 4;
-					proto_tree_add_item(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(subtree, n5305a_tx::hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN);
 				}
 
-				proto_tree_add_item(subtree, hfTransactData, buffer, buffer_offset, -1, ENC_NA);
+				proto_tree_add_item(subtree, n5305a_tx::hfTransactData, buffer, buffer_offset, -1, ENC_NA);
 				process_reassembled_data(buffer, 0, pinfo, "Reassembled N5305A Transaction", fragment,
 					&n5305aTransactItems, nullptr, tree);
 				return len;
@@ -91,7 +96,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 				transact.length += len;
 				fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, offset, len, TRUE);
 				p_add_proto_data(wmem_file_scope(), pinfo, frame_protocol, 1, transact.cookiePointer);
-				proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
+				proto_tree_add_item(subtree, n5305a_tx::hfTransactData, buffer, 0, -1, ENC_NA);
 				return len;
 			}
 			col_append_fstr(pinfo->cinfo, COL_INFO, "[Transaction 0x%04X]", cookie);
@@ -122,7 +127,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 			fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, 0, len, TRUE);
 			p_add_proto_data(wmem_file_scope(), pinfo, frame_protocol, 1, transact.cookiePointer);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[partial N5305A transaction]");
-			proto_tree_add_item(subtree, hfTransactData, buffer, 0, -1, ENC_NA);
+			proto_tree_add_item(subtree, n5305a_tx::hfTransactData, buffer, 0, -1, ENC_NA);
 			return len;
 		}
 		/* Chain the transaction dissector onto fully reassembled transactions */
