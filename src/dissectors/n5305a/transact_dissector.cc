@@ -130,5 +130,7 @@ void registerProtocolN5305ATransaction()
 	proto_register_subtree_array(ett.data(), ett.size());
 }
 
-void registerDissectorN5305ATransaction()
-	{ transactionDissector = create_dissector_handle(dissectTransact, protoN5305ATransact); }
+void registerDissectorN5305ATransaction() {
+	transactionDissector = register_dissector("n5305a.protocol_analyzer.transaction", dissectTransact, protoN5305ATransact);
+
+}

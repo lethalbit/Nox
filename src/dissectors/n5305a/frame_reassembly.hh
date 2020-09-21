@@ -19,6 +19,8 @@ extern "C"
 namespace Nox::Wireshark::N5305A::FrameReassembly {
 	static int32_t frame_protocol{-1};
 	static module_t *protocol_module{nullptr};
+	static dissector_handle_t transaction_dissector{nullptr};
+
 
 	void register_protoinfo();
 	void register_handoff();

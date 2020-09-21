@@ -1,6 +1,7 @@
 n5305a_srcs = [
 	'n5305a.cc',
 	'frame_reassembly.cc',
+	'transaction_reassembly.cc',
 	'transact_dissector.cc'
 ]
 

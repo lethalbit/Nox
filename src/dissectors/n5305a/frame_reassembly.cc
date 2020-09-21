@@ -126,8 +126,9 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 			return len;
 		}
 		/* Chain the transaction dissector onto fully reassembled transactions */
-		/* TODO: use find_dissecotr() by name rather than this cheeky handle */
 		return call_dissector(transactionDissector, buffer, pinfo, tree);
+		// FIXME: Figure out why the find_dissector() call can't find the transaction dissector
+		// return (transaction_dissector != nullptr) ? call_dissector(transaction_dissector, buffer, pinfo, tree) : len;
 	}
 
 	std::pair<proto_tree *, proto_item *> beginFrameSubtree(tvbuff_t *buffer, packet_info *const pinfo,
@@ -320,7 +321,9 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 		/* Construct a tvb from the reassembled frame data offset by the frame header */
 		auto *const frameBuffer{tvb_new_subset_length(buffer, 4, packetLength)};
 		/* Dissect the completed frame and return the value */
-		return dissectFrame(frameBuffer, pinfo, tree, tvb_get_ntohs(buffer, 0));
+		return (Preferences::enable_reframing) ?
+			dissectFrame(frameBuffer, pinfo, tree, tvb_get_ntohs(buffer, 0)) :
+			len;
 	}
 
 
@@ -347,14 +350,19 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 		dirHost = create_tvb_from_string(dirHostStr);
 		dirAnalyzer = create_tvb_from_string(dirAnalyzerStr);
 
+
+		/* Register settings we use for dissection */
 		register_protocol_preferences();
+
 	}
 
 	/* Registers the entire dissector */
 	void register_handoff()
 	{
+		transaction_dissector = find_dissector("n5305a.protocol_analyzer.transaction");
+
 		static dissector_handle_t handle;
-		handle = create_dissector_handle(dissectFraming, frame_protocol);
+		handle = register_dissector("n5305a.protocol_analyzer.frame", dissectFraming, frame_protocol);
 		dissector_add_uint("tcp.port", 1029, handle);
 	}
 
@@ -366,8 +374,8 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 		/* Register the frame-reassembly setting */
 		prefs_register_bool_preference(
 			protocol_module, "enable_reframing",
-			"Reassemble segmented N5305A transport frames",
-			"Whether segmented N5305A transport frames should be reassembled",
+			"Reassemble segmented N5305A transaction frames",
+			"Whether segmented N5305A transaction frames should be reassembled",
 			&Preferences::enable_reframing
 		);
 	}
