@@ -18,6 +18,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	void register_protoinfo();
 	void register_handoff();
 
+	std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, proto_tree *const tree);
+
 	static int32_t ettN5305ATransact = -1;
 	static int32_t ettTransactFlags = -1;
 	static int32_t ettMessages = -1;

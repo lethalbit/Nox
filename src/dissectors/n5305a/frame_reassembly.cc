@@ -26,15 +26,6 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 	// Table of all reconstructed transactions
 	reassembly_table transactReassemblyTable{};
 
-	/* Initialize a wireshark protocol subtree from the given tvb and populate the generic metadata */
-	std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, proto_tree *const tree)
-	{
-		proto_item *protocol{};
-		proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, n5305a_tx::ettN5305ATransact,
-			&protocol, "N5305A Protocol Analyzer Transaction");
-		return {subtree, protocol};
-	}
-
 	/* Take the completed frame from frame reassembly and attempt to reassemble the underlying transactional data */
 	/* This is basically the same as dissectFraming however the packets have been replaced with reassembled frames */
 	/* And the frames are replaced with transactions */
@@ -62,7 +53,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 				pinfo, frame_protocol, 1))};
 			if (fragment->reassembled_in != pinfo->num)
 			{
-				const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+				const auto &[subtree, protocol] = n5305a_tx::beginTransactSubtree(buffer, tree);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " [Fragmented Transaction 0x%04X]", cookie);
 
 				int32_t buffer_offset{0};
@@ -91,7 +82,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 			// If the packet does not complete the reassembly, quick exit plz
 			if (!(frameFlags & 0x8000))
 			{
-				const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+				const auto &[subtree, protocol] = n5305a_tx::beginTransactSubtree(buffer, tree);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction 0x%04X]", cookie);
 				transact.length += len;
 				fragment_add(&transactReassemblyTable, buffer, 0, pinfo, cookie, nullptr, offset, len, TRUE);
@@ -119,7 +110,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 
 		if (!PINFO_FD_VISITED(pinfo) && !(frameFlags & 0x8000U))
 		{
-			const auto &[subtree, protocol] = beginTransactSubtree(buffer, tree);
+			const auto &[subtree, protocol] = n5305a_tx::beginTransactSubtree(buffer, tree);
 			const uint16_t cookie = tvb_get_ntohs(buffer, 2);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "[Fragmented Transaction 0x%04X]", cookie);
 			transaction_fragment_t transact{cookie, len};
