@@ -94,6 +94,27 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return 0;
 	}
 
+	/* Initialize a wireshark protocol subtree from the given tvb and populate the generic metadata */
+	std::pair<proto_tree *, proto_item *> beginTransactSubtree(tvbuff_t *buffer, proto_tree *const tree)
+	{
+		proto_item *protocol{};
+		proto_tree *const subtree = proto_tree_add_subtree(tree, buffer, 0, -1, ettN5305ATransact,
+			&protocol, "N5305A Protocol Analyzer Transaction");
+		return {subtree, protocol};
+	}
+
+	uint16_t dissectCookie(tvbuff_t *const buffer, proto_tree *const subtree)
+	{
+		uint32_t cookie;
+		proto_tree_add_item_ret_uint(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
+		return cookie;
+	}
+
+	void dissectRawData(tvbuff_t *const buffer, proto_tree *subtree, const int32_t offset)
+	{
+		proto_tree_add_item(subtree, hfTransactData, buffer, offset, -1, ENC_NA);
+	}
+
 	static int dissectTransact(tvbuff_t *const buffer, packet_info *const pinfo, proto_tree *const tree, void *const)
 	{
 		const uint32_t packetLength = tvb_captured_length(buffer);
@@ -105,8 +126,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			&protocol, "N5305A Protocol Analyzer Transaction");
 
 		const uint16_t flags = extractFlags(buffer, subtree);
-		uint32_t cookie;
-		proto_tree_add_item_ret_uint(subtree, hfTransactCookie, buffer, 2, 2, ENC_BIG_ENDIAN, &cookie);
+		const uint16_t cookie = dissectCookie(buffer, subtree);
 		proto_item_append_text(protocol, ", Cookie: 0x%04X", cookie);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s - Cookie: 0x%04X, Size: %hu", dir, cookie, packetLength);
 
@@ -117,7 +137,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			dissectHost(n5305aBuffer, pinfo, subtree, packetLength, cookie, flags);
 
 		if (consumed + 4U != packetLength)
-			proto_tree_add_item(subtree, hfTransactData, n5305aBuffer, consumed, -1, ENC_NA);
+			dissectRawData(n5305aBuffer, subtree, consumed);
 		return packetLength;
 	}
 
