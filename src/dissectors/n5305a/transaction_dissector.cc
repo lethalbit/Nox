@@ -69,13 +69,62 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		{ "setSequencerMemory"sv,   rpc_func_handler_generic },
 	};
 
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_heartbeat{
+		{ "Heartbeat"sv, rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_spt_control{
+		{ "CallGet"sv,         rpc_func_handler_generic },
+		{ "CallSet"sv,         rpc_func_handler_generic },
+		{ "CallSetObserver"sv, rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_statistics_factory{
+		{ "getAvailableStatisticsGroups"sv, rpc_func_handler_generic },
+		{ "StatisticsGroups"sv,             rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_statistics_control{
+		{ "armStartMeasurements"sv,             rpc_func_handler_generic },
+		{ "armStopMeasurements"sv,              rpc_func_handler_generic },
+		{ "setContinuousMeasurementInterval"sv, rpc_func_handler_generic },
+		{ "setSamplingInterval"sv,              rpc_func_handler_generic },
+		{ "StatisticsStateUpdate"sv,            rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_event_manager{
+		{ "setActions"sv, rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_device_control{
+		{ "armResetTimestamps"sv, rpc_func_handler_generic },
+		{ "performSoftReset"sv,   rpc_func_handler_generic },
+		{ "shutdown"sv,           rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_event_generator{
+		{ "signalEvent"sv, rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_pa_pci_statistics{
+		{ "Statistics"sv, rpc_func_handler_generic },
+	};
+
 	using rpc_table_t = const std::unordered_map<std::string_view, rpc_dissector_func_t>;
 
 	static const std::unordered_map<std::string_view, rpc_table_t&> rpc_dispatch_tables{
-		{ "IDevAnalyzerControl1029"sv, rpc_analyzer_control },
-		{ "IDevAnalyzerData1029"sv,    rpc_analyzer_data    },
-		{ "IDevSegmentManager1029"sv,  rpc_segment_manager  },
-		{ "IDevPaSequencer1029"sv,     rpc_pa_sequencer     },
+		{ "IDevAnalyzerControl1029"sv,   rpc_analyzer_control   },
+		{ "IDevAnalyzerData1029"sv,      rpc_analyzer_data      },
+		{ "IDevSegmentManager1029"sv,    rpc_segment_manager    },
+		{ "IDevPaSequencer1029"sv,       rpc_pa_sequencer       },
+		{ "IDevHeartbeat1029"sv,         rpc_heartbeat          },
+		{ "IDevSptControl1029"sv,        rpc_spt_control        },
+		{ "IDevStatisticsFactory1029"sv, rpc_statistics_factory },
+		{ "IDevStatisticsControl1029"sv, rpc_statistics_control },
+		{ "IDevEventManager1029"sv,      rpc_event_manager      },
+		{ "IDevDeviceControl1029"sv,     rpc_device_control     },
+		{ "IDevEventGenerator1029"sv,    rpc_event_generator    },
+		{ "PaPciStatistics1029"sv,       rpc_pa_pci_statistics  },
 	};
 
 
