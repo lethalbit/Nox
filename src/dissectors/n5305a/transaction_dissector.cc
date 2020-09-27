@@ -3,11 +3,83 @@
 #include <dissectors.hh>
 #include <transaction_dissector.hh>
 
+#include <functional>
+#include <unordered_map>
+#include <string>
+#include <string_view>
+
+using namespace std::literals::string_view_literals;
+
 dissector_handle_t transactionDissector;
 static const char *const dirHostStr = "To Host";
 static const char *const dirAnalyzerStr = "To Analyzer";
 
 namespace Nox::Wireshark::N5305A::TransactionDissector {
+
+	struct dissctor_args_t final {
+		tvbuff_t *const buffer;
+		packet_info *const pinfo;
+		proto_tree *const subtree;
+		size_t len;
+		uint32_t offset;
+	};
+
+	using rpc_dissector_func_t = std::function<const ssize_t(dissctor_args_t)>;
+
+
+	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> const ssize_t {
+		auto &[buffer, pinfo, subtree, len, offset] = args;
+		proto_tree_add_item(subtree, hfTransactData, buffer, offset, -1, ENC_NA);
+		return 0;
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_control{
+		{ "AnalyzerStateChange"sv,                rpc_func_handler_generic },
+		{ "MultiframeCorrelationCounterChange"sv, rpc_func_handler_generic },
+		{ "SWPackageCheckObserver"sv,             rpc_func_handler_generic },
+		{ "setAnalyzerProp"sv,                    rpc_func_handler_generic },
+
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_data{
+		{ "SourceInfo"sv,           rpc_func_handler_generic },
+		{ "TransactionMap"sv,       rpc_func_handler_generic },
+		{ "Record10BitResponse"sv,  rpc_func_handler_generic },
+		{ "RecordVectorResponse"sv, rpc_func_handler_generic },
+		{ "FileSaveInfo"sv,         rpc_func_handler_generic },
+		{ "RecordResponse"sv,       rpc_func_handler_generic },
+		{ "RecordData"sv,           rpc_func_handler_generic },
+		{ "CancelRecordResponse"sv, rpc_func_handler_generic },
+		{ "GetSourceInfo"sv,        rpc_func_handler_generic },
+		{ "CancelAnalysis"sv,       rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_segment_manager{
+		{ "NumberOfSteps"sv,    rpc_func_handler_generic },
+		{ "ResetComplete"sv,    rpc_func_handler_generic },
+		{ "getNumberOfSteps"sv, rpc_func_handler_generic },
+		{ "resetBegin"sv,       rpc_func_handler_generic },
+		{ "resetStep"sv,        rpc_func_handler_generic },
+		{ "resetEnd"sv,         rpc_func_handler_generic },
+	};
+
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_pa_sequencer{
+		{ "setPatterns"sv,          rpc_func_handler_generic },
+		{ "setOccuranceCounters"sv, rpc_func_handler_generic },
+		{ "setSequencerMemory"sv,   rpc_func_handler_generic },
+		{ "setResource"sv,          rpc_func_handler_generic },
+	};
+
+	using rpc_table_t = const std::unordered_map<std::string_view, rpc_dissector_func_t>;
+
+	static const std::unordered_map<std::string_view, rpc_table_t&> rpc_dispatch_tables{
+		{ "IDevAnalyzerControl1029"sv, rpc_analyzer_control },
+		{ "IDevAnalyzerData1029"sv,    rpc_analyzer_data    },
+		{ "IDevSegmentManager1029"sv,  rpc_segment_manager  },
+		{ "IDevPaSequencer1029"sv,     rpc_pa_sequencer     },
+	};
+
+
 	uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 	{
 		proto_tree_add_bitmask(subtree, buffer, 0, hfFlagsType, ettTransactFlags, hfFlags.data(), ENC_BIG_ENDIAN);
