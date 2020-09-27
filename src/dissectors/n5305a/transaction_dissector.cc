@@ -110,6 +110,10 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		{ "Statistics"sv, rpc_func_handler_generic },
 	};
 
+	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_unclassified{
+		{ "rm"sv, rpc_func_handler_generic },
+	};
+
 	using rpc_table_t = const std::unordered_map<std::string_view, rpc_dissector_func_t>;
 
 	static const std::unordered_map<std::string_view, rpc_table_t&> rpc_dispatch_tables{
@@ -125,6 +129,9 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		{ "IDevDeviceControl1029"sv,     rpc_device_control     },
 		{ "IDevEventGenerator1029"sv,    rpc_event_generator    },
 		{ "PaPciStatistics1029"sv,       rpc_pa_pci_statistics  },
+
+		/* These are for things like the rm message and things */
+		{ "unclassified"sv,              rpc_unclassified       },
 	};
 
 
