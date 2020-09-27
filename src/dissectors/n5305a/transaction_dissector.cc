@@ -36,38 +36,37 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_control{
 		{ "AnalyzerStateChange"sv,                rpc_func_handler_generic },
 		{ "MultiframeCorrelationCounterChange"sv, rpc_func_handler_generic },
-		{ "SWPackageCheckObserver"sv,             rpc_func_handler_generic },
 		{ "setAnalyzerProp"sv,                    rpc_func_handler_generic },
-
+		{ "SWPackageCheckObserver"sv,             rpc_func_handler_generic },
 	};
 
 	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_data{
+		{ "CancelAnalysis"sv,       rpc_func_handler_generic },
+		{ "CancelRecordResponse"sv, rpc_func_handler_generic },
+		{ "FileSaveInfo"sv,         rpc_func_handler_generic },
+		{ "GetSourceInfo"sv,        rpc_func_handler_generic },
+		{ "Record10BitResponse"sv,  rpc_func_handler_generic },
+		{ "RecordData"sv,           rpc_func_handler_generic },
+		{ "RecordResponse"sv,       rpc_func_handler_generic },
+		{ "RecordVectorResponse"sv, rpc_func_handler_generic },
 		{ "SourceInfo"sv,           rpc_func_handler_generic },
 		{ "TransactionMap"sv,       rpc_func_handler_generic },
-		{ "Record10BitResponse"sv,  rpc_func_handler_generic },
-		{ "RecordVectorResponse"sv, rpc_func_handler_generic },
-		{ "FileSaveInfo"sv,         rpc_func_handler_generic },
-		{ "RecordResponse"sv,       rpc_func_handler_generic },
-		{ "RecordData"sv,           rpc_func_handler_generic },
-		{ "CancelRecordResponse"sv, rpc_func_handler_generic },
-		{ "GetSourceInfo"sv,        rpc_func_handler_generic },
-		{ "CancelAnalysis"sv,       rpc_func_handler_generic },
 	};
 
 	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_segment_manager{
-		{ "NumberOfSteps"sv,    rpc_func_handler_generic },
-		{ "ResetComplete"sv,    rpc_func_handler_generic },
 		{ "getNumberOfSteps"sv, rpc_func_handler_generic },
+		{ "NumberOfSteps"sv,    rpc_func_handler_generic },
 		{ "resetBegin"sv,       rpc_func_handler_generic },
-		{ "resetStep"sv,        rpc_func_handler_generic },
+		{ "ResetComplete"sv,    rpc_func_handler_generic },
 		{ "resetEnd"sv,         rpc_func_handler_generic },
+		{ "resetStep"sv,        rpc_func_handler_generic },
 	};
 
 	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_pa_sequencer{
-		{ "setPatterns"sv,          rpc_func_handler_generic },
 		{ "setOccuranceCounters"sv, rpc_func_handler_generic },
-		{ "setSequencerMemory"sv,   rpc_func_handler_generic },
+		{ "setPatterns"sv,          rpc_func_handler_generic },
 		{ "setResource"sv,          rpc_func_handler_generic },
+		{ "setSequencerMemory"sv,   rpc_func_handler_generic },
 	};
 
 	using rpc_table_t = const std::unordered_map<std::string_view, rpc_dissector_func_t>;
