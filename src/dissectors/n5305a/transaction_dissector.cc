@@ -14,6 +14,9 @@ dissector_handle_t transactionDissector;
 static const char *const dirHostStr = "To Host";
 static const char *const dirAnalyzerStr = "To Analyzer";
 
+using Nox::Wireshark::Common::create_tvb_from_string;
+using Nox::Wireshark::Common::create_tvb_from_numeric;
+
 namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	struct dissctor_args_t final {
@@ -30,6 +33,11 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> const ssize_t {
 		auto &[buffer, pinfo, subtree, len, offset] = args;
 		proto_tree_add_item(subtree, hfTransactData, buffer, offset, -1, ENC_NA);
+
+		auto dlen = len - offset;
+		auto dlen_buff = create_tvb_from_numeric(&dlen);
+		auto *const data_len = proto_tree_add_item(subtree, hfTransactDataLen, dlen_buff, 0, -1, ENC_NA);
+		PROTO_ITEM_SET_GENERATED(data_len);
 		return 0;
 	};
 
@@ -134,6 +142,20 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		{ "unclassified"sv,              rpc_unclassified       },
 	};
 
+
+	rpc_table_t& get_rpc_table(const std::string_view& table_name) {
+		const auto& table = rpc_dispatch_tables.find(table_name);
+		return (table != rpc_dispatch_tables.end()) ? table->second : rpc_unclassified;
+	}
+
+	const ssize_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data) {
+		const auto& method_dissector = rpc_table.find(method_name);
+		return (method_dissector != rpc_table.end()) ? (method_dissector->second)(dissector_data) : rpc_func_handler_generic(dissector_data);
+	}
+
+	const ssize_t dissect_rpc_call(const std::string_view& interface, const std::string_view& method, dissctor_args_t& data) {
+		return invoke_dispatch(get_rpc_table(interface), method, data);
+	}
 
 	uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
 	{

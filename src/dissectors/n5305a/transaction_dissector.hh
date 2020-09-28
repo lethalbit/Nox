@@ -50,6 +50,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	static int32_t hfMessageLength = -1;
 	static int32_t hfMessageData = -1;
 	static int32_t hfTransactData = -1;
+	static int32_t hfTransactDataLen = -1;
 
 	static auto ett{substrate::make_array<int32_t *>({
 		&ettN5305ATransact,
@@ -218,6 +219,13 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			{
 				"Transaction Data", "n5305a.protocol_analyzer.transact_data",
 				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
+			}
+		},
+		{
+			&hfTransactDataLen,
+			{
+				"Transaction Data Length", "n5305a.protocol_analyzer.transact_len",
+				FT_UINT32, BASE_DEC, nullptr, 0, nullptr, HFILL
 			}
 		}
 	})};
