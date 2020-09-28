@@ -11,6 +11,7 @@
 #endif
 
 #include <cstdint>
+#include <type_traits>
 
 #include <epan/packet.h>
 
@@ -21,6 +22,12 @@ namespace Nox::Wireshark::Common {
 	{
 		const size_t len = strlen(str) + 1;
 		return tvb_new_real_data((const uint8_t *)str, len, len);
+	}
+
+	template<typename T>
+	inline std::enable_if_t<std::is_integral_v<T>, tvbuff_t*>
+	create_tvb_from_numeric(T *number) {
+		return tvb_new_real_data(reinterpret_cast<uint8_t *>(number), sizeof(number), sizeof(number));
 	}
 
 }
