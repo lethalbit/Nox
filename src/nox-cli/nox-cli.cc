@@ -74,7 +74,7 @@ void print_banner() {
 		,")"sv
 	);
 
-	substrate::console.writeln("Tanuki is licensed under the GNU GPL version 3 or later <https://www.gnu.org/licenses/gpl>"sv);
+	substrate::console.writeln("nox-cli is licensed under the GNU GPL version 3 or later <https://www.gnu.org/licenses/gpl>"sv);
 }
 
 void print_help() {
