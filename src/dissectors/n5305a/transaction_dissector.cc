@@ -163,51 +163,48 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return tvb_get_ntohs(buffer, 0);
 	}
 
-
-	inline uint32_t readEmptyMessages(tvbuff_t *const buffer, proto_tree *const messages)
-	{
+	/* Reads the empty padding messages prefixing the `ln` and `rm` messages */
+	inline uint32_t readPadding(tvbuff_t *const buffer, proto_tree *const subtree) {
 		const uint32_t bufferLength{tvb_captured_length(buffer)};
 		uint32_t offset{0};
-		while (offset < bufferLength)
-		{
-			const uint32_t length = tvb_get_ntohl(buffer, offset);
-			if (length)
+		while (offset < bufferLength) {
+			if (tvb_get_ntohl(buffer, offset))
 				break;
-			proto_tree_add_item(messages, hfEmptyMessage, buffer, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
+		proto_tree_add_item(subtree, hfRPCPadding, buffer, 0, offset, ENC_NA);
 		return offset;
 	}
 
-	inline std::pair<uint32_t, const void *>
-		readMessage(tvbuff_t *const buffer, proto_tree *const messages, const uint32_t offset)
-	{
+	/* Extract a length prefixed string from the tvb */
+	inline std::pair<uint32_t, const void *> readLPString(tvbuff_t *const buffer, proto_tree *const subtree, const uint32_t offset)	{
 		proto_item *item{};
 		const auto length{tvb_get_ntohl(buffer, offset)};
-		auto *const message{proto_tree_add_subtree(messages, buffer, 0, length + 4, ettMessage, &item, "Message")};
-		proto_tree_add_item(message, hfMessageLength, buffer, offset, 4, ENC_BIG_ENDIAN);
+		auto *const string{proto_tree_add_subtree(subtree, buffer, offset, length + 4, ettLPString, &item, "Length Prefixed String")};
+		proto_tree_add_item(string, hfLPSLength, buffer, offset, 4, ENC_BIG_ENDIAN);
 		const uint8_t *data{};
-		proto_tree_add_item_ret_string(message, hfMessageData, buffer, offset + 4, length,
+		proto_tree_add_item_ret_string(string, hfLPSData, buffer, offset + 4, length,
 			ENC_ASCII, wmem_file_scope(), &data);
 		const auto realignment{4 + ((4 - (length % 4)) % 4)};
+		proto_item_set_text(item, reinterpret_cast<const char*>(data));
 		return {length + realignment, data};
 	}
 
-	inline uint32_t readMessages(tvbuff_t *const buffer, proto_tree *const messages, uint32_t offset)
-	{
-		const auto &[firstLength, message] = readMessage(buffer, messages, offset);
+	/* Read RPC message */
+	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset) {
+		const auto &[firstLength, message] = readLPString(buffer, subtree, offset);
 		offset += firstLength;
-		if (firstLength == 8 && memcmp(message, "ln", 2) == 0)
-		{
-			for (uint32_t i{0}; i < 2; ++i)
-			{
-				const auto &[length, _] = readMessage(buffer, messages, offset);
+
+		std::string_view rpc_interface{};
+		std::string_view interface_call{};
+
+		if (firstLength == 8 && memcmp(message, "ln", 2) == 0) {
+			for (uint32_t i{0}; i < 2; ++i) {
+				const auto &[length, _] = readLPString(buffer, subtree, offset);
 				offset += length;
 			}
-		}
-		else if (firstLength != 8)
-		{
-			const auto &[length, _] = readMessage(buffer, messages, offset);
+		} else if (firstLength != 8) {
+			const auto &[length, _] = readLPString(buffer, subtree, offset);
 			offset += length;
 		}
 		return offset;
@@ -219,7 +216,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
 	{
 		if (cookie == 1 && !(flags & 0x8000U)) {
-			const auto &[length, message] = readMessage(buffer, subtree, 0);
+			const auto &[length, message] = readLPString(buffer, subtree, 0);
 			return length;
 		} else {
 			uint32_t status{};
@@ -236,9 +233,9 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	{
 		if (cookie || flags) {
 			proto_item *item{};
-			auto *const messages{proto_tree_add_subtree(subtree, buffer, 0, -1, ettMessages, &item, "Messages")};
-			auto offset{readEmptyMessages(buffer, messages)};
-			offset = readMessages(buffer, messages, offset);
+			auto *const rpc{proto_tree_add_subtree(subtree, buffer, 0, -1, ettRPC, &item, "RPC")};
+			auto offset{readPadding(buffer, rpc)};
+			offset = readRPC(buffer, rpc, offset);
 			proto_item_set_len(item, offset);
 			return offset;
 		}

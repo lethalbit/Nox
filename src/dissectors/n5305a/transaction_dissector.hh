@@ -24,8 +24,9 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	static int32_t ettN5305ATransact = -1;
 	static int32_t ettTransactFlags = -1;
-	static int32_t ettMessages = -1;
-	static int32_t ettMessage = -1;
+	static int32_t ettLPString = -1;
+	static int32_t ettRPC = -1;
+	static int32_t ettRPCCall = -1;
 
 
 	static int32_t hfFlagsType = -1;
@@ -46,17 +47,19 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	static int32_t hfTransactCookie = -1;
 	static int32_t hfTransactStatus = -1;
-	static int32_t hfEmptyMessage = -1;
-	static int32_t hfMessageLength = -1;
-	static int32_t hfMessageData = -1;
+	static int32_t hfRPCPadding = -1;
+	static int32_t hfLPSLength = -1;
+	static int32_t hfLPSData = -1;
+	static int32_t hfLPSPadding = -1;
 	static int32_t hfTransactData = -1;
 	static int32_t hfTransactDataLen = -1;
 
 	static auto ett{substrate::make_array<int32_t *>({
 		&ettN5305ATransact,
 		&ettTransactFlags,
-		&ettMessages,
-		&ettMessage
+		&ettLPString,
+		&ettRPC,
+		&ettRPCCall
 	})};
 
 	static auto fields{substrate::make_array<hf_register_info>({
@@ -194,24 +197,31 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			}
 		},
 		{
-			&hfEmptyMessage,
+			&hfRPCPadding,
 			{
-				"Empty message", "n5305a.protocol_analyzer.messages.empty_message",
-				FT_UINT32, BASE_DEC, nullptr, 0, nullptr, HFILL
+				"RPC Padding", "n5305a.protocol_analyzer.rpc.padding",
+				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
 			}
 		},
 		{
-			&hfMessageLength,
+			&hfLPSLength,
 			{
-				"Message Length", "n5305a.protocol_analyzer.messages.message_length",
+				"String Length", "n5305a.protocol_analyzer.lps.string_length",
 				FT_UINT32, BASE_DEC_HEX, nullptr, 0, nullptr, HFILL
 			}
 		},
 		{
-			&hfMessageData,
+			&hfLPSData,
 			{
-				"Message Data", "n5305a.protocol_analyzer.messages.message_data",
+				"String Data", "n5305a.protocol_analyzer.lps.string_data",
 				FT_STRING, STR_ASCII, nullptr, 0, nullptr, HFILL
+			}
+		},
+		{
+			&hfLPSPadding,
+			{
+				"String Padding", "n5305a.protocol_analyzer.lps.string_padding",
+				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
 			}
 		},
 		{
