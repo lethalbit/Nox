@@ -27,18 +27,18 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		uint32_t offset;
 	};
 
-	using rpc_dissector_func_t = std::function<const ssize_t(dissctor_args_t)>;
+	using rpc_dissector_func_t = std::function<const uint32_t(dissctor_args_t)>;
 
 
-	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> const ssize_t {
+	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> const uint32_t {
 		auto &[buffer, pinfo, subtree, len, offset] = args;
+		if (len == 0) {
+			return offset;
+		}
+
 		proto_tree_add_item(subtree, hfTransactData, buffer, offset, -1, ENC_NA);
 
-		auto dlen = len - offset;
-		auto dlen_buff = create_tvb_from_numeric(&dlen);
-		auto *const data_len = proto_tree_add_item(subtree, hfTransactDataLen, dlen_buff, 0, -1, ENC_NA);
-		PROTO_ITEM_SET_GENERATED(data_len);
-		return 0;
+		return offset + len;
 	};
 
 	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_control{
@@ -148,12 +148,12 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return (table != rpc_dispatch_tables.end()) ? table->second : rpc_unclassified;
 	}
 
-	const ssize_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data) {
+	const uint32_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data) {
 		const auto& method_dissector = rpc_table.find(method_name);
 		return (method_dissector != rpc_table.end()) ? (method_dissector->second)(dissector_data) : rpc_func_handler_generic(dissector_data);
 	}
 
-	const ssize_t dissect_rpc_call(const std::string_view& interface, const std::string_view& method, dissctor_args_t& data) {
+	const uint32_t dissect_rpc_call(const std::string_view& interface, const std::string_view& method, dissctor_args_t& data) {
 		return invoke_dispatch(get_rpc_table(interface), method, data);
 	}
 
@@ -177,7 +177,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	}
 
 	/* Extract a length prefixed string from the tvb */
-	inline std::pair<uint32_t, const void *> readLPString(tvbuff_t *const buffer, proto_tree *const subtree, const uint32_t offset)	{
+	inline std::tuple<uint32_t, uint32_t, const void *> readLPString(tvbuff_t *const buffer, proto_tree *const subtree, const uint32_t offset)	{
 		proto_item *item{};
 		const auto length{tvb_get_ntohl(buffer, offset)};
 		auto *const string{proto_tree_add_subtree(subtree, buffer, offset, length + 4, ettLPString, &item, "Length Prefixed String")};
@@ -187,27 +187,44 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			ENC_ASCII, wmem_file_scope(), &data);
 		const auto realignment{4 + ((4 - (length % 4)) % 4)};
 		proto_item_set_text(item, reinterpret_cast<const char*>(data));
-		return {length + realignment, data};
+		return {length, realignment, data};
 	}
 
 	/* Read RPC message */
-	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset) {
-		const auto &[firstLength, message] = readLPString(buffer, subtree, offset);
-		offset += firstLength;
+	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset, packet_info *const pinfo) {
+		const auto &[firstLength, align, message] = readLPString(buffer, subtree, offset);
+		offset += firstLength + align;
 
-		std::string_view rpc_interface{};
-		std::string_view interface_call{};
+		std::string_view rpc_interface_name{};
+		std::string_view rpc_interface_call{};
 
-		if (firstLength == 8 && memcmp(message, "ln", 2) == 0) {
-			for (uint32_t i{0}; i < 2; ++i) {
-				const auto &[length, _] = readLPString(buffer, subtree, offset);
-				offset += length;
-			}
-		} else if (firstLength != 8) {
-			const auto &[length, _] = readLPString(buffer, subtree, offset);
-			offset += length;
+		if (firstLength + align == 8 && memcmp(message, "ln", 2) == 0) {
+				const auto &[in_length, in_align, interface_name] = readLPString(buffer, subtree, offset);
+				rpc_interface_name = std::string_view{static_cast<const char*>(interface_name), in_length};
+				offset += in_length + in_align;
+				const auto &[ic_length, ic_align, interface_call] = readLPString(buffer, subtree, offset);
+				rpc_interface_call = std::string_view{static_cast<const char*>(interface_call), ic_length};
+				offset += ic_length + ic_align;
+		} else if (firstLength + align != 8) {
+			const auto &[ic_length, ic_align, interface_call] = readLPString(buffer, subtree, offset);
+			rpc_interface_call = std::string_view{static_cast<const char*>(interface_call), ic_length};
+			rpc_interface_name = std::string_view{static_cast<const char*>(message), firstLength};
+			offset += ic_length + ic_align;
+		} else {
+			/* Likely to be a lone `rm` */
+			rpc_interface_name = "unclassified"sv;
+			rpc_interface_name = std::string_view{static_cast<const char*>(message), firstLength};
 		}
-		return offset;
+
+		dissctor_args_t args{
+			buffer,
+			pinfo,
+			subtree,
+			(tvb_captured_length(buffer) - offset),
+			offset
+		};
+
+		return dissect_rpc_call(rpc_interface_name, rpc_interface_call, args);
 	}
 
 	/* Dissect messages from the Analyzer */
@@ -216,8 +233,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
 	{
 		if (cookie == 1 && !(flags & 0x8000U)) {
-			const auto &[length, message] = readLPString(buffer, subtree, 0);
-			return length;
+			const auto &[length, align, message] = readLPString(buffer, subtree, 0);
+			return length + align;
 		} else {
 			uint32_t status{};
 			proto_item *const statusItem = proto_tree_add_item_ret_uint(subtree, hfTransactStatus,
@@ -235,7 +252,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			proto_item *item{};
 			auto *const rpc{proto_tree_add_subtree(subtree, buffer, 0, -1, ettRPC, &item, "RPC")};
 			auto offset{readPadding(buffer, rpc)};
-			offset = readRPC(buffer, rpc, offset);
+			offset = readRPC(buffer, rpc, offset, pinfo);
 			proto_item_set_len(item, offset);
 			return offset;
 		}
