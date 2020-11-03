@@ -213,6 +213,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return offset;
 	}
 
+	/* Dissect messages from the Analyzer */
+	/* TODO: The response depends on what the last RPC call was, we need a way to track that to allow for proper response dissection */
 	static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
 		proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
 	{
