@@ -229,8 +229,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	/* Dissect messages from the Analyzer */
 	/* TODO: The response depends on what the last RPC call was, we need a way to track that to allow for proper response dissection */
-	static uint16_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
-		proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
+	static uint32_t dissectAnalyzer(tvbuff_t *const buffer, packet_info *const pinfo,
+		proto_tree *const subtree, const uint32_t packetLength, const uint16_t cookie, const uint16_t flags)
 	{
 		if (cookie == 1 && !(flags & 0x8000U)) {
 			const auto &[length, align, message] = readLPString(buffer, subtree, 0);
@@ -245,8 +245,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		}
 	}
 
-	static uint16_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
-		proto_tree *const subtree, const uint16_t packetLength, const uint16_t cookie, const uint16_t flags)
+	static uint32_t dissectHost(tvbuff_t *const buffer, packet_info *const pinfo,
+		proto_tree *const subtree, const uint32_t packetLength, const uint16_t cookie, const uint16_t flags)
 	{
 		if (cookie || flags) {
 			proto_item *item{};
@@ -297,12 +297,13 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 		tvbuff_t *const n5305aBuffer = tvb_new_subset_remaining(buffer, 4);
 
-		const uint16_t consumed = (pinfo->srcport == 1029) ?
+		const uint32_t consumed = (pinfo->srcport == 1029) ?
 			dissectAnalyzer(n5305aBuffer, pinfo, subtree, packetLength, cookie, flags) :
 			dissectHost(n5305aBuffer, pinfo, subtree, packetLength, cookie, flags);
 
-		if (consumed + 4U != packetLength)
+		if (consumed + 4U != packetLength) {
 			dissectRawData(n5305aBuffer, subtree, consumed);
+		}
 		return packetLength;
 	}
 
