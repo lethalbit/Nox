@@ -27,10 +27,10 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		uint32_t offset;
 	};
 
-	using rpc_dissector_func_t = std::function<const uint32_t(dissctor_args_t)>;
+	using rpc_dissector_func_t = std::function<uint32_t(dissctor_args_t)>;
 
 
-	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> const uint32_t {
+	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> uint32_t {
 		auto &[buffer, pinfo, subtree, len, offset] = args;
 		if (len == 0) {
 			return offset;
@@ -41,88 +41,88 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return offset + len;
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_control{
-		{ "AnalyzerStateChange"sv,                rpc_func_handler_generic },
-		{ "MultiframeCorrelationCounterChange"sv, rpc_func_handler_generic },
-		{ "setAnalyzerProp"sv,                    rpc_func_handler_generic },
-		{ "SWPackageCheckObserver"sv,             rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_analyzer_control{
+		{ "AnalyzerStateChange"sv,                { rpc_func_handler_generic, rpc_func_handler_generic} },
+		{ "MultiframeCorrelationCounterChange"sv, { rpc_func_handler_generic, rpc_func_handler_generic} },
+		{ "setAnalyzerProp"sv,                    { rpc_func_handler_generic, rpc_func_handler_generic} },
+		{ "SWPackageCheckObserver"sv,             { rpc_func_handler_generic, rpc_func_handler_generic} },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_analyzer_data{
-		{ "CancelAnalysis"sv,       rpc_func_handler_generic },
-		{ "CancelRecordResponse"sv, rpc_func_handler_generic },
-		{ "FileSaveInfo"sv,         rpc_func_handler_generic },
-		{ "GetSourceInfo"sv,        rpc_func_handler_generic },
-		{ "Record10BitResponse"sv,  rpc_func_handler_generic },
-		{ "RecordData"sv,           rpc_func_handler_generic },
-		{ "RecordResponse"sv,       rpc_func_handler_generic },
-		{ "RecordVectorResponse"sv, rpc_func_handler_generic },
-		{ "SourceInfo"sv,           rpc_func_handler_generic },
-		{ "TransactionMap"sv,       rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_analyzer_data{
+		{ "CancelAnalysis"sv,       { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "CancelRecordResponse"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "FileSaveInfo"sv,         { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "GetSourceInfo"sv,        { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "Record10BitResponse"sv,  { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "RecordData"sv,           { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "RecordResponse"sv,       { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "RecordVectorResponse"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "SourceInfo"sv,           { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "TransactionMap"sv,       { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_segment_manager{
-		{ "getNumberOfSteps"sv, rpc_func_handler_generic },
-		{ "NumberOfSteps"sv,    rpc_func_handler_generic },
-		{ "resetBegin"sv,       rpc_func_handler_generic },
-		{ "ResetComplete"sv,    rpc_func_handler_generic },
-		{ "resetEnd"sv,         rpc_func_handler_generic },
-		{ "resetStep"sv,        rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_segment_manager{
+		{ "getNumberOfSteps"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "NumberOfSteps"sv,    { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "resetBegin"sv,       { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "ResetComplete"sv,    { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "resetEnd"sv,         { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "resetStep"sv,        { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_pa_sequencer{
-		{ "setOccuranceCounters"sv, rpc_func_handler_generic },
-		{ "setPatterns"sv,          rpc_func_handler_generic },
-		{ "setResource"sv,          rpc_func_handler_generic },
-		{ "setSequencerMemory"sv,   rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_pa_sequencer{
+		{ "setOccuranceCounters"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "setPatterns"sv,          { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "setResource"sv,          { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "setSequencerMemory"sv,   { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_heartbeat{
-		{ "Heartbeat"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_heartbeat{
+		{ "Heartbeat"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_spt_control{
-		{ "CallGet"sv,         rpc_func_handler_generic },
-		{ "CallSet"sv,         rpc_func_handler_generic },
-		{ "CallSetObserver"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_spt_control{
+		{ "CallGet"sv,         { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "CallSet"sv,         { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "CallSetObserver"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_statistics_factory{
-		{ "getAvailableStatisticsGroups"sv, rpc_func_handler_generic },
-		{ "StatisticsGroups"sv,             rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_statistics_factory{
+		{ "getAvailableStatisticsGroups"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "StatisticsGroups"sv,             { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_statistics_control{
-		{ "armStartMeasurements"sv,             rpc_func_handler_generic },
-		{ "armStopMeasurements"sv,              rpc_func_handler_generic },
-		{ "setContinuousMeasurementInterval"sv, rpc_func_handler_generic },
-		{ "setSamplingInterval"sv,              rpc_func_handler_generic },
-		{ "StatisticsStateUpdate"sv,            rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_statistics_control{
+		{ "armStartMeasurements"sv,             { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "armStopMeasurements"sv,              { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "setContinuousMeasurementInterval"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "setSamplingInterval"sv,              { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "StatisticsStateUpdate"sv,            { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_event_manager{
-		{ "setActions"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_event_manager{
+		{ "setActions"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_device_control{
-		{ "armResetTimestamps"sv, rpc_func_handler_generic },
-		{ "performSoftReset"sv,   rpc_func_handler_generic },
-		{ "shutdown"sv,           rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_device_control{
+		{ "armResetTimestamps"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "performSoftReset"sv,   { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "shutdown"sv,           { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_event_generator{
-		{ "signalEvent"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_event_generator{
+		{ "signalEvent"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_pa_pci_statistics{
-		{ "Statistics"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_pa_pci_statistics{
+		{ "Statistics"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	static const std::unordered_map<std::string_view, rpc_dissector_func_t> rpc_unclassified{
-		{ "rm"sv, rpc_func_handler_generic },
+	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_unclassified{
+		{ "rm"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
 	};
 
-	using rpc_table_t = const std::unordered_map<std::string_view, rpc_dissector_func_t>;
+	using rpc_table_t = const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>>;
 
 	static const std::unordered_map<std::string_view, rpc_table_t&> rpc_dispatch_tables{
 		{ "IDevAnalyzerControl1029"sv,   rpc_analyzer_control   },
@@ -143,18 +143,28 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	};
 
 
+	static std::unordered_map<uint16_t, rpc_dissector_func_t> rpc_response_dissectors{
+		{ 0x0000U, rpc_func_handler_generic }
+	};
+
+
 	rpc_table_t& get_rpc_table(const std::string_view& table_name) {
 		const auto& table = rpc_dispatch_tables.find(table_name);
 		return (table != rpc_dispatch_tables.end()) ? table->second : rpc_unclassified;
 	}
 
-	const uint32_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data) {
+	uint32_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data, uint16_t packet_cookie) {
 		const auto& method_dissector = rpc_table.find(method_name);
-		return (method_dissector != rpc_table.end()) ? (method_dissector->second)(dissector_data) : rpc_func_handler_generic(dissector_data);
+		if (method_dissector != rpc_table.end()) {
+			auto &[analyzer_func, resp_func] = method_dissector->second;
+			rpc_response_dissectors[packet_cookie] = resp_func;
+			return analyzer_func(dissector_data);
+		}
+		return  rpc_func_handler_generic(dissector_data);
 	}
 
-	const uint32_t dissect_rpc_call(const std::string_view& interface, const std::string_view& method, dissctor_args_t& data) {
-		return invoke_dispatch(get_rpc_table(interface), method, data);
+	uint32_t dissect_rpc_call(const std::string_view& interface, const std::string_view& method, dissctor_args_t& data,  uint16_t packet_cookie) {
+		return invoke_dispatch(get_rpc_table(interface), method, data, packet_cookie);
 	}
 
 	uint16_t extractFlags(tvbuff_t *const buffer, proto_tree *const subtree)
@@ -191,7 +201,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	}
 
 	/* Read RPC message */
-	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset, packet_info *const pinfo) {
+	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset, packet_info *const pinfo,  uint16_t packet_cookie) {
 		const auto &[firstLength, align, message] = readLPString(buffer, subtree, offset);
 		offset += firstLength + align;
 
@@ -224,7 +234,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			offset
 		};
 
-		return dissect_rpc_call(rpc_interface_name, rpc_interface_call, args);
+		return dissect_rpc_call(rpc_interface_name, rpc_interface_call, args, packet_cookie);
 	}
 
 	/* Dissect messages from the Analyzer */
@@ -241,7 +251,21 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 				buffer, 0, 4, ENC_BIG_ENDIAN, &status);
 			if (!status)
 				proto_item_set_text(statusItem, "Status: OK");
-			return 4;
+			uint32_t offset{4};
+
+			dissctor_args_t args{
+				buffer,
+				pinfo,
+				subtree,
+				(tvb_captured_length(buffer) - offset),
+				offset
+			};
+
+			const auto& method_dissector = rpc_response_dissectors.find(cookie);
+			if (method_dissector != rpc_response_dissectors.end()) {
+				return (method_dissector->second)(args);
+			}
+			return rpc_func_handler_generic(args);
 		}
 	}
 
@@ -252,7 +276,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			proto_item *item{};
 			auto *const rpc{proto_tree_add_subtree(subtree, buffer, 0, -1, ettRPC, &item, "RPC")};
 			auto offset{readPadding(buffer, rpc)};
-			offset = readRPC(buffer, rpc, offset, pinfo);
+			offset = readRPC(buffer, rpc, offset, pinfo, cookie);
 			proto_item_set_len(item, offset);
 			return offset;
 		}
