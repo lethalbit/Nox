@@ -4,7 +4,8 @@ project(
 	default_options: [
 		'cpp_std=gnu++17',
 		'warning_level=3',
-		'b_lto=true'
+		'b_lto=true',
+		'b_sanitize=address,undefined'
 	],
 	meson_version: '>= 0.54.0',
 	license: 'GPL-3.0-or-later',
