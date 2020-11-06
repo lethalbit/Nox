@@ -84,6 +84,3 @@ jobs:
         run: meson build --prefix=$HOME/.local -Dcpp_std=${{ matrix.cpp_std }} $BUILD_OPTS
       - name: Build
         run: ninja -C build
-
-      - name: Install
-        run: ninja -C build  install

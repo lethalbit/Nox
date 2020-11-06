@@ -29,3 +29,10 @@ option(
 	value: true,
 	description: 'Enables the nox-gui'
 )
+
+option(
+	'enable_dissectors',
+	type: 'boolean',
+	value: true,
+	description: 'Enable building the wireshark dissectors'
+)

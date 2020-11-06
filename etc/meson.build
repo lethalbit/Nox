@@ -39,5 +39,3 @@ configure_file(
 )
 
 nox_inc = include_directories('.')
-
-subdir('dissectors')

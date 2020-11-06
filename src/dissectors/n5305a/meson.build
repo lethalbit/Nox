@@ -1,11 +1,14 @@
 n5305a_srcs = [
-	'n5305a.cc', 'frameDissector.cc', 'transactDissector.cc'
+	'n5305a.cc',
+	'frame_reassembly.cc',
+	'transaction_reassembly.cc',
+	'transaction_dissector.cc'
 ]
 
 ws_version = wireshark.version()
 ws_version = ws_version.split('.')
 
-shared_library(
+n5305a_dissector = shared_library(
 	'n5305a',
 	n5305a_srcs,
 	name_prefix: '',
@@ -16,5 +19,7 @@ shared_library(
 		'-DWIRESHARK_VERSION_MINOR=@0@'.format(ws_version[1])
 	],
 	dependencies: [ wireshark, substrate_dep ],
-	gnu_default_visibility: 'inlineshidden'
+	gnu_symbol_visibility: 'inlineshidden',
+	install: true,
+	install_dir: wireshark.get_pkgconfig_variable('plugindir')
 )
