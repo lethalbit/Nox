@@ -13,7 +13,7 @@ noxcli_srcs = files([
 	'nox-cli.cc'
 ])
 
-noxcli_inc = include_directories('./include')
+subdir('include')
 
 noxcli = executable(
 	'nox-cli',
