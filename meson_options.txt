@@ -36,3 +36,10 @@ option(
 	value: true,
 	description: 'Enable building the wireshark dissectors'
 )
+
+option(
+	'enable_utilities',
+	type: 'boolean',
+	value: true,
+	description: 'Enable building the misc utilities used for the documentation process'
+)

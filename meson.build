@@ -4,7 +4,8 @@ project(
 	default_options: [
 		'cpp_std=gnu++17',
 		'warning_level=3',
-		'b_lto=true'
+		'b_lto=true',
+		'b_sanitize=address,undefined'
 	],
 	meson_version: '>= 0.54.0',
 	license: 'GPL-3.0-or-later',
@@ -32,7 +33,7 @@ if (cxx.get_id() == 'gcc' and cxx.version().version_compare('<9.0.0')) or (cxx.g
 		error('Unable to find C++17 experimental/filesystem header')
 	endif
 	nox_deps += [ cxx.find_library('libstdc++fs', required: true) ]
-	add_global_arguments('-DCXXFS_EXP',	language: 'cpp')
+	add_global_arguments('-DLIBNOX_CPPFS_EXPERIMENTAL',	language: 'cpp')
 endif
 
 substrate_dep = dependency('substrate', required: false, version: '>=0.0.1')

@@ -8,47 +8,21 @@ if target_machine.system() == 'windows'
 	noxgui_deps += dependency('qt5', modules: ['Main'], required: true)
 endif
 
+
+
 noxgui_srcs = files([
 	'nox-gui.cc',
-
-	# Global Windows
-	'ui/main_window.cc',
-
-	# Diagnostics Windows
-
-	# Capture Windows
-
-	# Settings Windows
-
-])
-
-noxgui_moc = files([
-	# Global Windows
-	'include/ui/main_window.hh',
-
-	# Diagnostics Windows
-
-	# Capture Windows
-
-	# Settings Windows
-])
-
-noxgui_ui = files([
-	# Global Windows
-	'ui/main_window.ui',
-
-	# Diagnostics Windows
-
-	# Capture Windows
-
-	# Settings Windows
 ])
 
 noxgui_qrc = files([
 
 ])
 
-noxgui_inc = include_directories('./include')
+subdir('include')
+subdir('ui')
+
+
+
 
 noxgui_srcs += qt5.preprocess(
 	ui_files: noxgui_ui,
@@ -57,14 +31,7 @@ noxgui_srcs += qt5.preprocess(
 	dependencies: noxgui_deps
 )
 
-noxgui_srcs += qt5.compile_translations(
-	ts_files: files([
-		'i18n/en_US.ts'
-	]),
-	build_by_default : true,
-	# install: true,
-)
-
+subdir('i18n')
 
 noxgui = executable(
 	'nox-gui',
