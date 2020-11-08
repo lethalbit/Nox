@@ -4,6 +4,11 @@ libnox_headers = files([
 
 subdir('internal')
 
+subdir('analyzer')
+subdir('exerciser')
+subdir('interface')
+subdir('protocol')
+
 if not meson.is_subproject()
 	install_headers(
 		libnox_headers,

@@ -18,9 +18,13 @@ libnox = library(
 
 subdir('include')
 
-pkgconfig = import('pkgconfig')
+subdir('analyzer')
+subdir('exerciser')
+subdir('interface')
+subdir('protocol')
 
 if not meson.is_subproject()
+	pkgconfig = import('pkgconfig')
 	pkgconfig.generate(
 		subdirs: 'libnox',
 		name: 'libnox',
