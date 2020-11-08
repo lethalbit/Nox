@@ -57,14 +57,7 @@ noxgui_srcs += qt5.preprocess(
 	dependencies: noxgui_deps
 )
 
-noxgui_srcs += qt5.compile_translations(
-	ts_files: files([
-		'i18n/en_US.ts'
-	]),
-	build_by_default : true,
-	# install: true,
-)
-
+subdir('i18n')
 
 noxgui = executable(
 	'nox-gui',
