@@ -3,6 +3,7 @@ qt5 = import('qt5')
 noxgui_deps = [
 	dependency('qt5', modules: ['Core', 'Gui', 'Widgets'], required: true),
 	dependency('libgvc', required: true),
+	libnokogiri_dep,
 ]
 
 if target_machine.system() == 'windows'

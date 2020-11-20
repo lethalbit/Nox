@@ -37,11 +37,18 @@ if (cxx.get_id() == 'gcc' and cxx.version().version_compare('<9.0.0')) or (cxx.g
 endif
 
 substrate_dep = dependency('substrate', required: false, version: '>=0.0.1')
+libnokogiri_dep = dependency('libnokogiri', required: false, version: '>=0.0.1')
 
 if not substrate_dep.found()
 	message('Did not find local substrate install, bundling')
 	substrate = subproject('substrate', default_options: 'default_library=static')
 	substrate_dep = substrate.get_variable('substrate_dep')
+endif
+
+if not libnokogiri_dep.found()
+	message('Did not find local libnokogiri install, bundling')
+	libnokogiri = subproject('libnokogiri', default_options: 'default_library=static')
+	libnokogiri_dep = libnokogiri.get_variable('libnokogiri_dep')
 endif
 
 nox_deps += substrate_dep

@@ -1,5 +1,6 @@
 noxcli_deps = [
 	dependency('ncurses', required: true),
+	libnokogiri_dep,
 ]
 
 line_editor = get_option('line_editor')

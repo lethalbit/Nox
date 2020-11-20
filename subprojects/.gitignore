@@ -1,3 +1,4 @@
 *
 !.gitignore
 !substrate.wrap
+!libnokogiri.wrap
