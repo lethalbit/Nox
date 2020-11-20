@@ -12,6 +12,4 @@ if get_option('enable_utilities')
 	subdir('utilities')
 endif
 
-if get_option('enable_dissectors')
-	subdir('dissectors')
-endif
+subdir('dissectors')

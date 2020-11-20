@@ -31,10 +31,17 @@ option(
 )
 
 option(
-	'enable_dissectors',
+	'enable_wireshark_dissectors',
 	type: 'boolean',
 	value: true,
 	description: 'Enable building the wireshark dissectors'
+)
+
+option(
+	'enable_nox_dissectors',
+	type: 'boolean',
+	value: true,
+	description: 'Enable building the native Nox dissectors'
 )
 
 option(

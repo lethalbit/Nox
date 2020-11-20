@@ -31,9 +31,9 @@ noxgui_srcs += qt5.preprocess(
 
 noxgui = executable(
 	'nox-gui',
-    noxgui_srcs,
-    link_with: libnox,
-    include_directories: [ nox_inc, libnox_inc, noxgui_inc ],
-    dependencies: [ nox_deps, noxgui_deps ],
+	noxgui_srcs,
+	link_with: libnox,
+	include_directories: [ nox_inc, libnox_inc, noxgui_inc ],
+	dependencies: [ nox_deps, noxgui_deps ],
 	install: true,
 )
