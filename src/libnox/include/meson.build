@@ -3,6 +3,9 @@ libnox_headers = files([
 ])
 
 subdir('internal')
+subdir('core')
+
+subdir('dissector')
 
 subdir('analyzer')
 subdir('exerciser')

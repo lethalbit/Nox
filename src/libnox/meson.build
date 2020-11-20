@@ -17,6 +17,9 @@ libnox = library(
 )
 
 subdir('include')
+subdir('core')
+
+subdir('dissector')
 
 subdir('analyzer')
 subdir('exerciser')
