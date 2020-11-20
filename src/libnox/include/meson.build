@@ -1,3 +1,5 @@
+libnox_inc = include_directories('.')
+
 libnox_headers = files([
 
 ])

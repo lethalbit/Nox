@@ -6,16 +6,6 @@ libnox_srcs = files([
 
 ])
 
-libnox_inc = include_directories('./include')
-
-libnox = library(
-	'libnox',
-	libnox_srcs,
-	include_directories: [ nox_inc, libnox_inc ],
-	dependencies: [ nox_deps, libnox_deps ],
-	install: (not meson.is_subproject()),
-)
-
 subdir('include')
 subdir('core')
 
@@ -25,6 +15,14 @@ subdir('analyzer')
 subdir('exerciser')
 subdir('interface')
 subdir('protocol')
+
+libnox = library(
+	'libnox',
+	libnox_srcs,
+	include_directories: [ nox_inc, libnox_inc ],
+	dependencies: [ nox_deps, libnox_deps ],
+	install: (not meson.is_subproject()),
+)
 
 if not meson.is_subproject()
 	pkgconfig = import('pkgconfig')
