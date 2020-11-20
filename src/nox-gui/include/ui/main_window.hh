@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* ui/main_window.hh - Nox GUI main window */
 #pragma once
+#if !defined(NOX_GUI_UI_MAIN_WINDOW_HH)
+#define NOX_GUI_UI_MAIN_WINDOW_HH
 
 #include <config.hh>
 
@@ -18,3 +20,4 @@ namespace Nox::gui::ui {
 		explicit MainWindow(QWindow* parent = nullptr) noexcept;
 	};
 }
+#endif /* NOX_GUI_UI_MAIN_WINDOW_HH */

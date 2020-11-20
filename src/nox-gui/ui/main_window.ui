@@ -19,30 +19,14 @@
   <property name="windowTitle">
    <string>Nox GUI</string>
   </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QSplitter" name="splitter_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="childrenCollapsible">
-       <bool>false</bool>
-      </property>
-      <widget class="QTreeView" name="treeView"/>
-      <widget class="QSplitter" name="splitter">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="childrenCollapsible">
-        <bool>false</bool>
-       </property>
-       <widget class="QGraphicsView" name="graphicsView"/>
-       <widget class="QPlainTextEdit" name="plainTextEdit"/>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QGridLayout" name="gridLayout"/>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -57,37 +41,327 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Recent"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_As"/>
+    <addaction name="actionPrint"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>View</string>
+     <string>Edit</string>
     </property>
+    <widget class="QMenu" name="menuCopy_As">
+     <property name="title">
+      <string>Copy As...</string>
+     </property>
+     <addaction name="actionRaw_Binary"/>
+     <addaction name="actionHex_Encoded_Text"/>
+     <addaction name="actionC_Array"/>
+     <addaction name="actionC_Array_2"/>
+     <addaction name="actionJSON_Document"/>
+    </widget>
+    <addaction name="separator"/>
+    <addaction name="menuCopy_As"/>
+    <addaction name="actionFind"/>
+    <addaction name="actionFind_Next"/>
+    <addaction name="actionFind_Prev"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
-     <string>Options</string>
+     <string>View</string>
     </property>
+    <addaction name="actionDisplay_Filter"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
-     <string>Window</string>
+     <string>Capture</string>
     </property>
+    <addaction name="actionStart"/>
+    <addaction name="actionStop"/>
+    <addaction name="actionRestart"/>
+    <addaction name="separator"/>
+    <addaction name="actionFilters"/>
+    <addaction name="actionTiggers"/>
+    <addaction name="actionOptions"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
+     <string>Analyze</string>
+    </property>
+    <addaction name="actionDissectors"/>
+    <addaction name="actionFlow_Analyses"/>
+    <addaction name="actionStatistics"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp_2">
+    <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionWebsite"/>
+    <addaction name="actionWebsite_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout_Nox_GUI"/>
+   </widget>
+   <widget class="QMenu" name="menuGo">
+    <property name="title">
+     <string>Go</string>
+    </property>
+    <addaction name="actionGo_To_Packet"/>
+    <addaction name="actionNext_Packet"/>
+    <addaction name="actionPrevious_Packet"/>
+    <addaction name="actionFirst_Packet"/>
+    <addaction name="actionLast_Packet"/>
+    <addaction name="separator"/>
+    <addaction name="actionGo_To_Transaction"/>
+    <addaction name="actionNext_Transaction"/>
+    <addaction name="actionPrevious_Transaction"/>
+    <addaction name="actionFirst_Transaction"/>
+    <addaction name="actionLast_Transaction"/>
+    <addaction name="separator"/>
+    <addaction name="actionGo_To_Sequence"/>
+    <addaction name="actionNext_Sequence"/>
+    <addaction name="actionPrevious_Sequence"/>
+    <addaction name="actionFirst_Sequence"/>
+    <addaction name="actionLast_Sequence"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuOptions"/>
+   <addaction name="menuGo"/>
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionffff">
+  <action name="actionOpen">
    <property name="text">
-    <string>ffff</string>
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Open Recent</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionExport_As">
+   <property name="text">
+    <string>Export As...</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>Print</string>
+   </property>
+  </action>
+  <action name="actionRaw_Binary">
+   <property name="text">
+    <string>Raw Binary</string>
+   </property>
+  </action>
+  <action name="actionHex_Encoded_Text">
+   <property name="text">
+    <string>Hex Encoded Text</string>
+   </property>
+  </action>
+  <action name="actionC_Array">
+   <property name="text">
+    <string>C Array</string>
+   </property>
+  </action>
+  <action name="actionC_Array_2">
+   <property name="text">
+    <string>C++ Array</string>
+   </property>
+  </action>
+  <action name="actionJSON_Document">
+   <property name="text">
+    <string>JSON Document</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionFind_Next">
+   <property name="text">
+    <string>Find Next</string>
+   </property>
+  </action>
+  <action name="actionFind_Prev">
+   <property name="text">
+    <string>Find Prev</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionRestart">
+   <property name="text">
+    <string>Restart</string>
+   </property>
+  </action>
+  <action name="actionFilters">
+   <property name="text">
+    <string>Filters</string>
+   </property>
+  </action>
+  <action name="actionOptions">
+   <property name="text">
+    <string>Options</string>
+   </property>
+  </action>
+  <action name="actionTiggers">
+   <property name="text">
+    <string>Tiggers</string>
+   </property>
+  </action>
+  <action name="actionWebsite">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionWebsite_2">
+   <property name="text">
+    <string>Website</string>
+   </property>
+  </action>
+  <action name="actionAbout_Nox_GUI">
+   <property name="text">
+    <string>About Nox GUI</string>
+   </property>
+  </action>
+  <action name="actionDissectors">
+   <property name="text">
+    <string>Dissectors</string>
+   </property>
+  </action>
+  <action name="actionFlow_Analyses">
+   <property name="text">
+    <string>Flow Analyses</string>
+   </property>
+  </action>
+  <action name="actionStatistics">
+   <property name="text">
+    <string>Statistics</string>
+   </property>
+  </action>
+  <action name="actionDisplay_Filter">
+   <property name="text">
+    <string>Display Filter</string>
+   </property>
+  </action>
+  <action name="actionGo_To_Packet">
+   <property name="text">
+    <string>Go To Packet</string>
+   </property>
+  </action>
+  <action name="actionNext_Packet">
+   <property name="text">
+    <string>Next Packet</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Packet">
+   <property name="text">
+    <string>Previous Packet</string>
+   </property>
+  </action>
+  <action name="actionFirst_Packet">
+   <property name="text">
+    <string>First Packet</string>
+   </property>
+  </action>
+  <action name="actionLast_Packet">
+   <property name="text">
+    <string>Last Packet</string>
+   </property>
+  </action>
+  <action name="actionGo_To_Transaction">
+   <property name="text">
+    <string>Go To Transaction</string>
+   </property>
+  </action>
+  <action name="actionNext_Transaction">
+   <property name="text">
+    <string>Next Transaction</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Transaction">
+   <property name="text">
+    <string>Previous Transaction</string>
+   </property>
+  </action>
+  <action name="actionFirst_Transaction">
+   <property name="text">
+    <string>First Transaction</string>
+   </property>
+  </action>
+  <action name="actionLast_Transaction">
+   <property name="text">
+    <string>Last Transaction</string>
+   </property>
+  </action>
+  <action name="actionGo_To_Sequence">
+   <property name="text">
+    <string>Go To Sequence</string>
+   </property>
+  </action>
+  <action name="actionNext_Sequence">
+   <property name="text">
+    <string>Next Sequence</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Sequence">
+   <property name="text">
+    <string>Previous Sequence</string>
+   </property>
+  </action>
+  <action name="actionFirst_Sequence">
+   <property name="text">
+    <string>First Sequence</string>
+   </property>
+  </action>
+  <action name="actionLast_Sequence">
+   <property name="text">
+    <string>Last Sequence</string>
    </property>
   </action>
  </widget>
