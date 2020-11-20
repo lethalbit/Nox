@@ -15,15 +15,11 @@ noxgui_srcs = files([
 	'nox-gui.cc',
 ])
 
-noxgui_qrc = files([
-
-])
-
 subdir('include')
+
+subdir('i18n')
+subdir('qrc')
 subdir('ui')
-
-
-
 
 noxgui_srcs += qt5.preprocess(
 	ui_files: noxgui_ui,
@@ -31,8 +27,6 @@ noxgui_srcs += qt5.preprocess(
 	qresources: noxgui_qrc,
 	dependencies: noxgui_deps
 )
-
-subdir('i18n')
 
 noxgui = executable(
 	'nox-gui',
