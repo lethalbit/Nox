@@ -21,8 +21,8 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          echo ::set-env name=PATH::"$HOME/.local/bin:$PATH"
-          echo ::set-env name=GITHUB_WORKSPACE::"`pwd`"
+          echo -n "PATH=\"$HOME/.local/bin:$PATH\"" >> $GITHUB_ENV
+          echo -n "GITHUB_WORKSPACE=\"`pwd`\"" >> $GITHUB_ENV
       - name: Setup GCC
         shell: bash
         run: |
@@ -31,8 +31,8 @@ jobs:
           sudo apt-add-repository ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install $CC $CXX
-          echo ::set-env name=CC::$CC
-          echo ::set-env name=CXX::$CXX
+          echo -n "CC=$CC" >> $GITHUB_ENV
+          echo -n "CXX=$CXX" >> $GITHUB_ENV
       - name: Checkout Nox
         uses: actions/checkout@v2
         with:
