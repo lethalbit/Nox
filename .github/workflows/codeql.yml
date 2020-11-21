@@ -21,7 +21,7 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          echo "PATH=\"$HOME/.local/bin:$PATH\"" >> $GITHUB_ENV
+          echo "$HOME/.local/bin:$PATH" >> $GITHUB_PATH
           echo "GITHUB_WORKSPACE=\"`pwd`\"" >> $GITHUB_ENV
       - name: Setup GCC
         shell: bash
