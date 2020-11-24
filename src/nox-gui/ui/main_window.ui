@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1013</width>
+    <height>702</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>800</width>
-    <height>600</height>
+    <width>1013</width>
+    <height>702</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -26,14 +26,102 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout"/>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="opaqueResize">
+       <bool>true</bool>
+      </property>
+      <property name="handleWidth">
+       <number>5</number>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>995</width>
+         <height>202</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>995</width>
+         <height>202</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>995</width>
+         <height>404</height>
+        </size>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="documentMode">
+        <bool>true</bool>
+       </property>
+       <property name="tabsClosable">
+        <bool>false</bool>
+       </property>
+       <property name="movable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="tab_1">
+        <attribute name="title">
+         <string>Tab 1</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="tab_5">
+        <attribute name="title">
+         <string>Tab 2</string>
+        </attribute>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1013</width>
      <height>27</height>
     </rect>
    </property>
@@ -59,7 +147,8 @@
       <string>Copy As...</string>
      </property>
      <property name="icon">
-      <iconset theme="edit-copy"/>
+      <iconset theme="edit-copy">
+       <normaloff>.</normaloff>.</iconset>
      </property>
      <addaction name="actionRaw_Binary"/>
      <addaction name="actionHex_Encoded_Text"/>
@@ -149,7 +238,8 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -157,7 +247,8 @@
   </action>
   <action name="actionOpen_Recent">
    <property name="icon">
-    <iconset theme="document-open-recent"/>
+    <iconset theme="document-open-recent">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Open Recent</string>
@@ -165,7 +256,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -173,7 +265,8 @@
   </action>
   <action name="actionSave_As">
    <property name="icon">
-    <iconset theme="document-save-as"/>
+    <iconset theme="document-save-as">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save As...</string>
@@ -181,7 +274,8 @@
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -189,15 +283,11 @@
   </action>
   <action name="actionExport_As">
    <property name="icon">
-    <iconset theme="text-x-generic"/>
+    <iconset theme="text-x-generic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Export As...</string>
-   </property>
-  </action>
-  <action name="actionPrint">
-   <property name="text">
-    <string>Print</string>
    </property>
   </action>
   <action name="actionRaw_Binary">
@@ -227,7 +317,8 @@
   </action>
   <action name="actionFind">
    <property name="icon">
-    <iconset theme="edit-find"/>
+    <iconset theme="edit-find">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Find</string>
@@ -235,7 +326,8 @@
   </action>
   <action name="actionFind_Next">
    <property name="icon">
-    <iconset theme="go-next"/>
+    <iconset theme="go-next">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Find Next</string>
@@ -243,7 +335,8 @@
   </action>
   <action name="actionFind_Prev">
    <property name="icon">
-    <iconset theme="go-previous"/>
+    <iconset theme="go-previous">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Find Prev</string>
@@ -251,7 +344,8 @@
   </action>
   <action name="actionPreferences">
    <property name="icon">
-    <iconset theme="preferences-other"/>
+    <iconset theme="preferences-other">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Preferences</string>
@@ -259,7 +353,8 @@
   </action>
   <action name="actionStart">
    <property name="icon">
-    <iconset theme="media-playback-start"/>
+    <iconset theme="media-playback-start">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Start</string>
@@ -267,7 +362,8 @@
   </action>
   <action name="actionStop">
    <property name="icon">
-    <iconset theme="media-playback-stop"/>
+    <iconset theme="media-playback-stop">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Stop</string>
@@ -275,7 +371,8 @@
   </action>
   <action name="actionRestart">
    <property name="icon">
-    <iconset theme="view-refresh"/>
+    <iconset theme="view-refresh">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Restart</string>
@@ -283,7 +380,8 @@
   </action>
   <action name="actionFilters">
    <property name="icon">
-    <iconset theme="open-menu"/>
+    <iconset theme="open-menu">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Filters</string>
@@ -291,7 +389,8 @@
   </action>
   <action name="actionOptions">
    <property name="icon">
-    <iconset theme="preferences-system-network"/>
+    <iconset theme="preferences-system-network">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Options</string>
@@ -299,7 +398,8 @@
   </action>
   <action name="actionTiggers">
    <property name="icon">
-    <iconset theme="send-to"/>
+    <iconset theme="send-to">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Tiggers</string>
@@ -307,7 +407,8 @@
   </action>
   <action name="actionWebsite">
    <property name="icon">
-    <iconset theme="help-faq"/>
+    <iconset theme="help-faq">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Documentation</string>
@@ -315,7 +416,8 @@
   </action>
   <action name="actionWebsite_2">
    <property name="icon">
-    <iconset theme="text-html"/>
+    <iconset theme="text-html">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Website</string>
@@ -323,7 +425,8 @@
   </action>
   <action name="actionAbout_Nox_GUI">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>About Nox GUI</string>
@@ -331,7 +434,8 @@
   </action>
   <action name="actionDissectors">
    <property name="icon">
-    <iconset theme="edit-cut"/>
+    <iconset theme="edit-cut">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Dissectors</string>
@@ -339,7 +443,8 @@
   </action>
   <action name="actionFlow_Analyses">
    <property name="icon">
-    <iconset theme="network-transmit-receive"/>
+    <iconset theme="network-transmit-receive">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Flow Analyses</string>
@@ -347,7 +452,8 @@
   </action>
   <action name="actionStatistics">
    <property name="icon">
-    <iconset theme="utilities-system-monitor"/>
+    <iconset theme="utilities-system-monitor">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Statistics</string>
@@ -355,7 +461,8 @@
   </action>
   <action name="actionDisplay_Filter">
    <property name="icon">
-    <iconset theme="open-menu"/>
+    <iconset theme="open-menu">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Display Filter</string>
@@ -363,7 +470,8 @@
   </action>
   <action name="actionGo_To_Packet">
    <property name="icon">
-    <iconset theme="go-jump"/>
+    <iconset theme="go-jump">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Go To Packet</string>
@@ -371,7 +479,8 @@
   </action>
   <action name="actionNext_Packet">
    <property name="icon">
-    <iconset theme="go-next"/>
+    <iconset theme="go-next">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Next Packet</string>
@@ -379,7 +488,8 @@
   </action>
   <action name="actionPrevious_Packet">
    <property name="icon">
-    <iconset theme="go-previous"/>
+    <iconset theme="go-previous">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Previous Packet</string>
@@ -387,7 +497,8 @@
   </action>
   <action name="actionFirst_Packet">
    <property name="icon">
-    <iconset theme="go-first"/>
+    <iconset theme="go-first">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>First Packet</string>
@@ -395,7 +506,8 @@
   </action>
   <action name="actionLast_Packet">
    <property name="icon">
-    <iconset theme="go-last"/>
+    <iconset theme="go-last">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Last Packet</string>
@@ -403,7 +515,8 @@
   </action>
   <action name="actionGo_To_Transaction">
    <property name="icon">
-    <iconset theme="go-jump"/>
+    <iconset theme="go-jump">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Go To Transaction</string>
@@ -411,7 +524,8 @@
   </action>
   <action name="actionNext_Transaction">
    <property name="icon">
-    <iconset theme="go-next"/>
+    <iconset theme="go-next">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Next Transaction</string>
@@ -419,7 +533,8 @@
   </action>
   <action name="actionPrevious_Transaction">
    <property name="icon">
-    <iconset theme="go-previous"/>
+    <iconset theme="go-previous">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Previous Transaction</string>
@@ -427,7 +542,8 @@
   </action>
   <action name="actionFirst_Transaction">
    <property name="icon">
-    <iconset theme="go-first"/>
+    <iconset theme="go-first">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>First Transaction</string>
@@ -435,7 +551,8 @@
   </action>
   <action name="actionLast_Transaction">
    <property name="icon">
-    <iconset theme="go-last"/>
+    <iconset theme="go-last">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Last Transaction</string>
@@ -443,7 +560,8 @@
   </action>
   <action name="actionGo_To_Sequence">
    <property name="icon">
-    <iconset theme="go-jump"/>
+    <iconset theme="go-jump">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Go To Sequence</string>
@@ -451,7 +569,8 @@
   </action>
   <action name="actionNext_Sequence">
    <property name="icon">
-    <iconset theme="go-next"/>
+    <iconset theme="go-next">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Next Sequence</string>
@@ -459,7 +578,8 @@
   </action>
   <action name="actionPrevious_Sequence">
    <property name="icon">
-    <iconset theme="go-previous"/>
+    <iconset theme="go-previous">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Previous Sequence</string>
@@ -467,7 +587,8 @@
   </action>
   <action name="actionFirst_Sequence">
    <property name="icon">
-    <iconset theme="go-first"/>
+    <iconset theme="go-first">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>First Sequence</string>
@@ -475,7 +596,8 @@
   </action>
   <action name="actionLast_Sequence">
    <property name="icon">
-    <iconset theme="go-last"/>
+    <iconset theme="go-last">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Last Sequence</string>
@@ -483,7 +605,8 @@
   </action>
   <action name="actionNew_Session">
    <property name="icon">
-    <iconset theme="document-new"/>
+    <iconset theme="document-new">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>New Session</string>
