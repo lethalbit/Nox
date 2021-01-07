@@ -51,7 +51,10 @@ if not libnokogiri_dep.found()
 	libnokogiri_dep = libnokogiri.get_variable('libnokogiri_dep')
 endif
 
-nox_deps += substrate_dep
+nox_deps += [
+	substrate_dep
+	libnokogiri_dep,
+]
 
 subdir('etc')
 subdir('src')

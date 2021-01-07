@@ -24,7 +24,7 @@ libnox = library(
 	install: (not meson.is_subproject()),
 )
 
-if not meson.is_subproject()
+if not meson.is_subproject() and target_machine.system() != 'windows'
 	pkgconfig = import('pkgconfig')
 	pkgconfig.generate(
 		subdirs: 'libnox',
