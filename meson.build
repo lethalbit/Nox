@@ -52,7 +52,7 @@ if not libnokogiri_dep.found()
 endif
 
 nox_deps += [
-	substrate_dep
+	substrate_dep,
 	libnokogiri_dep,
 ]
 
