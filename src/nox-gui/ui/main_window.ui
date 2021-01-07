@@ -177,6 +177,7 @@
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
     <addaction name="actionRestart"/>
+    <addaction name="actionReplay"/>
     <addaction name="separator"/>
     <addaction name="actionFilters"/>
     <addaction name="actionTiggers"/>
@@ -370,6 +371,9 @@
    </property>
   </action>
   <action name="actionRestart">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="view-refresh">
      <normaloff>.</normaloff>.</iconset>
@@ -610,6 +614,17 @@
    </property>
    <property name="text">
     <string>New Session</string>
+   </property>
+  </action>
+  <action name="actionReplay">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="network-transmit"/>
+   </property>
+   <property name="text">
+    <string>Replay With Exerciser</string>
    </property>
   </action>
  </widget>
