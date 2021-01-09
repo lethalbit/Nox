@@ -50,8 +50,8 @@ In either case, simpling running `meson build` from the root of the repository w
 Once you have configured Nox appropriately, to simply build and install simply run the following:
 
 ```
-$ ninja -c build
-$ ninja -c build install
+$ ninja -C build
+$ ninja -C build install
 ```
 
 This will build and install Nox into the default prefix which is `/usr/local`, to change that see the configuration steps above.
