@@ -1,6 +1,13 @@
-libnox_deps = [
-	dependency('zlib', version: '>=1.1.130', required: true),
-]
+if target_machine.system() == 'windows'
+	zlib = subproject('zlib')
+	libnox_deps = [
+		zlib.get_variable('zlib_dep')
+	]
+else
+	libnox_deps = [
+		dependency('zlib', version: '>=1.1.130', required: true),
+	]
+endif
 
 libnox_srcs = files([
 
