@@ -54,15 +54,15 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	static int32_t hfTransactData = -1;
 	static int32_t hfTransactDataLen = -1;
 
-	static auto ett{substrate::make_array<int32_t *>({
+	static std::array<int32_t *, 5> ett{
 		&ettN5305ATransact,
 		&ettTransactFlags,
 		&ettLPString,
 		&ettRPC,
 		&ettRPCCall
-	})};
+	};
 
-	static auto fields{substrate::make_array<hf_register_info>({
+	static std::array<hf_register_info, 26> fields{{
 		{
 			&hfFlagsType,
 			{
@@ -238,7 +238,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 				FT_UINT32, BASE_DEC, nullptr, 0, nullptr, HFILL
 			}
 		}
-	})};
+	}};
 }
 #endif /* N5305A_TRANSACTION_REASSEMBLY_HH */
 

@@ -92,7 +92,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 		&ettTransactFragments
 	};
 
-	static auto fields{substrate::make_array<hf_register_info>({
+	static std::array<hf_register_info, 42> fields{{
 		{
 			&hfFlagsType,
 			{
@@ -391,7 +391,7 @@ namespace Nox::Wireshark::N5305A::FrameReassembly {
 				FT_BYTES, BASE_NONE, nullptr, 0, "N5305A reassembled frame data", HFILL
 			}
 		}
-	})};
+	}};
 
 	static const fragment_items n5305aFrameItems =
 	{
