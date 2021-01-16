@@ -14,7 +14,9 @@ The following table shows the current supported operations per module
 
 
 
-## Configuring and Building
+## Configuring and Building for Linux 
+
+The following steps describe how to build Nox on Linux and Linux-like systems
 
 ### Prerequisites
 
@@ -31,7 +33,6 @@ For `nox-gui` you will also need the QT5 development packages installed.
 And finally for `nox-cli` only one of the following depending on the line editor configuration as well as `ncurses`:
  * libedit
  * libreadline
-
 
 
 
@@ -61,6 +62,10 @@ This will build and install Nox into the default prefix which is `/usr/local`, t
 If you are building Nox for inclusion in a distributions package system then ensure to set `DESTDIR` prior to running meson install.
 
 There is also a `bugreport_url` configuration option that is set to this repositories issues tracker by default, it is recommended to change it to your distributions bug tracking page.
+
+## Configuring and Building for Windows
+
+TODO - Figure out that mess
 
 ## Contributing
 
