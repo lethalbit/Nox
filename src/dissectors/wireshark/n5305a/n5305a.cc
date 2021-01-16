@@ -10,9 +10,9 @@
 
 extern "C"
 {
-	extern const char plugin_version[] WS_DLL_PUBLIC_DEF;
-	extern const int plugin_want_major WS_DLL_PUBLIC_DEF;
-	extern const int plugin_want_minor WS_DLL_PUBLIC_DEF;
+	WS_DLL_PUBLIC_DEF extern const char plugin_version[];
+	WS_DLL_PUBLIC_DEF extern const int plugin_want_major;
+	WS_DLL_PUBLIC_DEF extern const int plugin_want_minor;
 	WS_DLL_PUBLIC void plugin_register();
 }
 
