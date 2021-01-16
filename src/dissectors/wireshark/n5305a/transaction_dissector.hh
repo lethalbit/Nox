@@ -46,12 +46,14 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	static int32_t hfTransactCookie = -1;
 	static int32_t hfTransactStatus = -1;
-	static int32_t hfRPCPadding = -1;
 	static int32_t hfLPSLength = -1;
 	static int32_t hfLPSData = -1;
 	static int32_t hfLPSPadding = -1;
 	static int32_t hfTransactData = -1;
 	static int32_t hfTransactDataLen = -1;
+	static int32_t hfRPCInterface = -1;
+	static int32_t hfRPCMethod = -1;
+	static int32_t hfRPCPayload = -1;
 
 	static std::array<int32_t *, 5> ett{
 		&ettN5305ATransact,
@@ -61,7 +63,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		&ettRPCCall
 	};
 
-	static std::array<hf_register_info, 26> fields{{
+	static std::array<hf_register_info, 27> fields{{
 		{
 			&hfFlagsType,
 			{
@@ -196,13 +198,6 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			}
 		},
 		{
-			&hfRPCPadding,
-			{
-				"RPC Padding", "n5305a.protocol_analyzer.rpc.padding",
-				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
-			}
-		},
-		{
 			&hfLPSLength,
 			{
 				"String Length", "n5305a.protocol_analyzer.lps.string_length",
@@ -236,8 +231,30 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 				"Transaction Data Length", "n5305a.protocol_analyzer.transact_len",
 				FT_UINT32, BASE_DEC, nullptr, 0, nullptr, HFILL
 			}
+		},
+		{
+			&hfRPCInterface,
+			{
+				"RPC Interface", "n5305a.protocol_analyzer.rpc.interface",
+				FT_STRING, STR_ASCII, nullptr, 0, nullptr, HFILL
+			}
+		},
+		{
+			&hfRPCMethod,
+			{
+				"RPC Method", "n5305a.protocol_analyzer.rpc.method",
+				FT_STRING, STR_ASCII, nullptr, 0, nullptr, HFILL
+			}
+		},
+		{
+			&hfRPCPayload,
+			{
+				"RPC Payload Data", "n5305a.protocol_analyzer.rpc.payload",
+				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
+			}
 		}
 	}};
+
 }
 #endif /* N5305A_TRANSACTION_REASSEMBLY_HH */
 
