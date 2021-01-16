@@ -2,6 +2,10 @@
 
 The following document describes the guidelines to follow when working on and contributing to Nox.
 
+## Licensing
+
+For all original code, [SPDX license identifiers](https://spdx.github.io/spdx-spec/appendix-V-using-SPDX-short-identifiers-in-source-files/) must be used at the top of each file to denote the license that is appropriate for that file. In the case of [`libnox`](https://github.com/lethalbit/Nox/src/libnox) that would be something like `// SPDX-License-Identifier: LGPL-3.0-or-later`
+
 ## File Naming
 
 All files must be in lowercase and use snake case as the naming convention. So rather than `ThisIsAfilename` it would be `this_is_a_file_name`.

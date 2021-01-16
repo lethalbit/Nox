@@ -62,6 +62,10 @@ If you are building Nox for inclusion in a distributions package system then ens
 
 There is also a `bugreport_url` configuration option that is set to this repositories issues tracker by default, it is recommended to change it to your distributions bug tracking page.
 
+## Contributing
+
+If you would like to contribute to Nox, please see the  [Nox Contribution Guidelines](https://github.com/lethalbit/Nox/blob/main/CONTRIBUTING.md).
+
 ## License
 
 `nox-cli` and `nox-gui` are licensed under the GPL v3 or later, you can find a full copy of the license text in the [`LICENSE`](LICENSE) file.

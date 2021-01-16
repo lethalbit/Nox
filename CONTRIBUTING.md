@@ -12,7 +12,7 @@ If you've found an issue or want a feature please do [report it](https://github.
 
 If you wish to contribute code wise, then check out the [currently open](https://github.com/lethalbit/Nox/issues?q=is%3Aissue+is%3Aopen) issues and feature request for a place to start.
 
-Be sure to read our [development guidelines](https://github.com/lethalbit/Nox/blob/main/DEVELOPMENT_GUIDELINES.md) first as to ensure that your pull request has the highest chance of being accepted.
+Be sure to read our [development guidelines](https://github.com/lethalbit/Nox/blob/main/DEVELOPMENT_GUIDELINES.md), [attribution guidelines](https://github.com/lethalbit/Nox/blob/main/ATTRIBUTION_GUIDELINES.md), and [reverse-engineering policy](https://github.com/lethalbit/Nox/blob/main/REVERSE_ENGINEERING_POLICY.md) first as to ensure that your pull request has the highest chance of being accepted.
 
 ## Documentation
 
