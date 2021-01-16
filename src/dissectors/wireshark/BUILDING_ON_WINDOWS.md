@@ -4,8 +4,6 @@ To build the Wireshark dissectors, first go though the steps in the [" Win32/64:
 
 To build the Nox Wireshark dissectors, copy the contents of the `src/dissectors/wireshark/n5305a` directory into a directory of the same name in `plugins/epan` directory in the Wireshark source tree.
 
-Also copy the contents of the `subprojects/substrate/substrate` into the `plugins/epan/n5305a` directory.
-
 After that is done, in the root of the Wireshark source directory, change the name of `CMakeListsCustom.txt.example` to `CMakeListsCustom.txt` and add the path to the `n5305a` dissector to the `CUSTOM_PLUGIN_SRC_DIR` set statement, it should look like the following:
 
 ```cmake

@@ -7,7 +7,6 @@
 #include <common.hh>
 
 #include <array>
-#include <substrate/utility>
 
 #include <cstdint>
 #include <epan/packet.h>
