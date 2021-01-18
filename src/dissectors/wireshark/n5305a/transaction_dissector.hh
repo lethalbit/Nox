@@ -28,7 +28,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	static int32_t ettTransactFlags = -1;
 	static int32_t ettLPString = -1;
 	static int32_t ettRPC = -1;
-	static int32_t ettRPCCall = -1;
+	static int32_t ettRPCPayload = -1;
 
 
 	static int32_t hfFlagsType = -1;
@@ -54,19 +54,27 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	static int32_t hfLPSPadding = -1;
 	static int32_t hfTransactData = -1;
 	static int32_t hfTransactDataLen = -1;
+
+	/* RPC Stuff */
 	static int32_t hfRPCInterface = -1;
 	static int32_t hfRPCMethod = -1;
 	static int32_t hfRPCPayload = -1;
+
+	/* RPC Payload bits */
+	static int32_t hfRPCUnknown = -1;
+	static int32_t hfRPCHandle = -1;
+	static int32_t hfRPCObserver = -1;
+
 
 	static std::array<int32_t *, 5> ett{
 		&ettN5305ATransact,
 		&ettTransactFlags,
 		&ettLPString,
 		&ettRPC,
-		&ettRPCCall
+		&ettRPCPayload
 	};
 
-	static std::array<hf_register_info, 27> fields{{
+	static std::array<hf_register_info, 30> fields{{
 		{
 			&hfFlagsType,
 			{
@@ -255,9 +263,26 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 				"RPC Payload Data", "n5305a.protocol_analyzer.rpc.payload",
 				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
 			}
-		}
+		},
+		{
+			&hfRPCHandle,
+			{
+				"RPC Handle", "n5305a.protocol_analyzer.rpc.payload.handle",
+				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
+			}
+		},
+		{
+			&hfRPCObserver,
+			"RPC Observer", "n5305a.protocol_analyzer.rpc.payload.observer",
+			FT_STRING, STR_ASCII, nullptr, 0, nullptr, HFILL
+		},
+		{
+			&hfRPCUnknown,
+			{
+				"RPC Unknown Value", "n5305a.protocol_analyzer.rpc.payload.unknown",
+				FT_BYTES, BASE_NONE, nullptr, 0, nullptr, HFILL
+			}
+		},
 	}};
-
 }
 #endif /* N5305A_TRANSACTION_REASSEMBLY_HH */
-

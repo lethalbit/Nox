@@ -19,6 +19,28 @@ using Nox::Wireshark::Common::create_tvb_from_numeric;
 
 namespace Nox::Wireshark::N5305A::TransactionDissector {
 
+	/* Extract a length prefixed string from the tvb */
+	inline std::tuple<uint32_t, uint32_t, const void *> readLPString(tvbuff_t *const buffer, proto_tree *const subtree, const uint32_t offset)	{
+		proto_item *item{};
+		const auto length{tvb_get_ntohl(buffer, offset)};
+		auto *const string{proto_tree_add_subtree(subtree, buffer, offset, length + 4, ettLPString, &item, "Length Prefixed String")};
+		proto_tree_add_item(string, hfLPSLength, buffer, offset, 4, ENC_BIG_ENDIAN);
+		const uint8_t *data{};
+		proto_tree_add_item_ret_string(string, hfLPSData, buffer, offset + 4, length,
+			ENC_ASCII, wmem_file_scope(), &data);
+		const auto realignment{4 + ((4 - (length % 4)) % 4)};
+		proto_item_set_text(item, reinterpret_cast<const char*>(data));
+		return {length, realignment, data};
+	}
+
+	/* Extract a length-prefixed string, but without adding things to the protocol tree */
+	inline std::tuple<uint32_t, uint32_t, const void *> readLPString(tvbuff_t *const buffer, const uint32_t offset) {
+		const auto length{tvb_get_ntohl(buffer, offset)};
+		const auto realignment{4 + ((4 - (length % 4)) % 4)};
+		const uint8_t *data{tvb_get_string_enc(wmem_file_scope(), buffer, offset + 4, length, ENC_ASCII)};
+		return {length, realignment, data};
+	}
+
 	struct dissctor_args_t final {
 		tvbuff_t *const buffer;
 		packet_info *const pinfo;
@@ -29,16 +51,44 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	using rpc_dissector_func_t = std::function<uint32_t(dissctor_args_t)>;
 
-
 	const auto rpc_func_handler_generic = [](dissctor_args_t args) -> uint32_t {
 		auto &[buffer, pinfo, subtree, len, offset] = args;
-		if (len == 0) {
-			return offset;
-		}
 
 		proto_tree_add_item(subtree, hfRPCPayload, buffer, offset, -1, ENC_NA);
 
 		return offset + len;
+	};
+
+
+	const auto rpc_func_handler_rm_in = [](dissctor_args_t args) -> uint32_t {
+		auto &[buffer, pinfo, subtree, len, offset] = args;
+
+		proto_tree_add_item(subtree, hfRPCHandle, buffer, offset + 4, -1, ENC_NA);
+
+		return offset + len;
+	};
+
+	const auto rpc_func_handler_ln_in = [](dissctor_args_t args) -> uint32_t {
+		auto &[buffer, pinfo, subtree, len, offset] = args;
+
+		const auto peek_len{tvb_get_ntohl(buffer, offset)};
+
+		if (peek_len == 0) {
+			/* It's a Handle */
+			proto_tree_add_item(subtree, hfRPCHandle, buffer, offset + 4, 12, ENC_NA);
+		} else {
+			/* It's a LPS */
+			const auto &[lps_len, lps_align, data] = readLPString(buffer, subtree, offset);
+			offset += lps_len + lps_align;
+		}
+
+		const auto &[ob_length, ob_align, ob_name] = readLPString(buffer, offset);
+		proto_tree_add_item(subtree, hfRPCObserver, buffer, offset + 4, ob_length, ENC_ASCII);
+		offset += ob_length + ob_align;
+
+		proto_tree_add_item(subtree, hfRPCUnknown, buffer, offset, -1, ENC_NA);
+
+		return len;
 	};
 
 	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_analyzer_control{
@@ -119,8 +169,8 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	};
 
 	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_magic{
-		{ "rm"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
-		{ "ln"sv, { rpc_func_handler_generic, rpc_func_handler_generic } },
+		{ "rm"sv, { rpc_func_handler_rm_in, rpc_func_handler_generic } },
+		{ "ln"sv, { rpc_func_handler_ln_in, rpc_func_handler_generic } },
 	};
 
 	static const std::unordered_map<std::string_view, std::pair<rpc_dissector_func_t, rpc_dissector_func_t>> rpc_unclassified{
@@ -158,6 +208,11 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	}
 
 	uint32_t invoke_dispatch(const rpc_table_t& rpc_table, const std::string_view& method_name, dissctor_args_t& dissector_data, uint16_t packet_cookie) {
+		if (dissector_data.len == 0) {
+			return dissector_data.offset;
+		}
+
+
 		const auto& method_dissector = rpc_table.find(method_name);
 		if (method_dissector != rpc_table.end()) {
 			auto &[analyzer_func, resp_func] = method_dissector->second;
@@ -177,27 +232,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		return tvb_get_ntohs(buffer, 0);
 	}
 
-	/* Extract a length prefixed string from the tvb */
-	inline std::tuple<uint32_t, uint32_t, const void *> readLPString(tvbuff_t *const buffer, proto_tree *const subtree, const uint32_t offset)	{
-		proto_item *item{};
-		const auto length{tvb_get_ntohl(buffer, offset)};
-		auto *const string{proto_tree_add_subtree(subtree, buffer, offset, length + 4, ettLPString, &item, "Length Prefixed String")};
-		proto_tree_add_item(string, hfLPSLength, buffer, offset, 4, ENC_BIG_ENDIAN);
-		const uint8_t *data{};
-		proto_tree_add_item_ret_string(string, hfLPSData, buffer, offset + 4, length,
-			ENC_ASCII, wmem_file_scope(), &data);
-		const auto realignment{4 + ((4 - (length % 4)) % 4)};
-		proto_item_set_text(item, reinterpret_cast<const char*>(data));
-		return {length, realignment, data};
-	}
 
-	/* Extract a length-prefixed string, but without adding things to the protocol tree */
-	inline std::tuple<uint32_t, uint32_t, const void *> readLPString(tvbuff_t *const buffer, const uint32_t offset) {
-		const auto length{tvb_get_ntohl(buffer, offset)};
-		const auto realignment{4 + ((4 - (length % 4)) % 4)};
-		const uint8_t *data{tvb_get_string_enc(wmem_file_scope(), buffer, offset + 4, length, ENC_ASCII)};
-		return {length, realignment, data};
-	}
 
 	/* Read RPC message */
 	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset, packet_info *const pinfo,  uint16_t packet_cookie) {
@@ -222,10 +257,14 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 		proto_tree_add_item(subtree, hfRPCMethod, buffer, offset + 4, mc_length, ENC_ASCII);
 		offset += mc_length + mc_align;
 
+		proto_item *item{};
+		const auto rpc_payload_tree{proto_tree_add_subtree(subtree, buffer, offset, -1, ettRPCPayload, &item, "RPC Payload")};
+		proto_item_set_len(item, offset);
+
 		dissctor_args_t args{
 			buffer,
 			pinfo,
-			subtree,
+			rpc_payload_tree,
 			(tvb_captured_length(buffer) - offset),
 			offset
 		};
