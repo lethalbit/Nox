@@ -201,34 +201,26 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 
 	/* Read RPC message */
 	inline uint32_t readRPC(tvbuff_t *const buffer, proto_tree *const subtree, uint32_t offset, packet_info *const pinfo,  uint16_t packet_cookie) {
-		const auto &[firstLength, align, message] = readLPString(buffer, offset);
-		offset += firstLength + align;
-
-		// proto_tree_add_item(string, hfLPSLength, buffer, offset, 4, ENC_BIG_ENDIAN);
-
-
 		std::string_view rpc_interface_name{};
-		std::string_view rpc_interface_call{};
+		std::string_view rpc_method_name{};
 
-		if (firstLength + align == 8 && memcmp(message, "ln", 2) == 0) {
-				const auto &[in_length, in_align, interface_name] = readLPString(buffer, offset);
-				rpc_interface_name = std::string_view{static_cast<const char*>(interface_name), in_length};
-				offset += in_length + in_align;
-				const auto &[ic_length, ic_align, interface_call] = readLPString(buffer, offset);
-				rpc_interface_call = std::string_view{static_cast<const char*>(interface_call), ic_length};
-				offset += ic_length + ic_align;
-		} else if (firstLength + align != 8) {
-			const auto &[ic_length, ic_align, interface_call] = readLPString(buffer, offset);
-			rpc_interface_call = std::string_view{static_cast<const char*>(interface_call), ic_length};
-			rpc_interface_name = std::string_view{static_cast<const char*>(message), firstLength};
-			offset += ic_length + ic_align;
+		/* RPC Interface */
+		const auto &[if_length, if_align, if_name] = readLPString(buffer, offset);
+		if (if_length != 0) {
+			rpc_interface_name = std::string_view{static_cast<const char*>(if_name), if_length};
+			proto_tree_add_item(subtree, hfRPCInterface, buffer, offset + 4, if_length, ENC_ASCII);
+			offset += if_length + if_align;
 		} else {
-			/* Likely to be a lone `rm` */
-			rpc_interface_name = "unclassified"sv;
-			rpc_interface_name = std::string_view{static_cast<const char*>(message), firstLength};
+			rpc_interface_name = "magic"sv;
+			proto_tree_add_item(subtree, hfRPCInterface, ifNameMagic, 0, -1, ENC_ASCII);
+			offset += if_align + 12;
 		}
 
-
+		/* RPC Method */
+		const auto &[mc_length, mc_align, mc_name] = readLPString(buffer, offset);
+		rpc_method_name = std::string_view{static_cast<const char*>(mc_name), mc_length};
+		proto_tree_add_item(subtree, hfRPCMethod, buffer, offset + 4, mc_length, ENC_ASCII);
+		offset += mc_length + mc_align;
 
 		dissctor_args_t args{
 			buffer,
@@ -238,7 +230,7 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			offset
 		};
 
-		return dissect_rpc_call(rpc_interface_name, rpc_interface_call, args, packet_cookie);
+		return dissect_rpc_call(rpc_interface_name, rpc_method_name, args, packet_cookie);
 	}
 
 	/* Dissect messages from the Analyzer */
@@ -342,8 +334,12 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 			"n5305a.protocol_analyzer"
 		);
 
+		ifNameMagic = create_tvb_from_string(ifNameMagicStr);
+
 		proto_register_field_array(transaction_protocol, fields.data(), fields.size());
 		proto_register_subtree_array(ett.data(), ett.size());
+
+
 	}
 
 	void register_handoff() {

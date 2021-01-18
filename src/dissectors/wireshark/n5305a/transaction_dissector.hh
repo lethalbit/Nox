@@ -21,6 +21,9 @@ namespace Nox::Wireshark::N5305A::TransactionDissector {
 	uint16_t dissectCookie(tvbuff_t *const buffer, proto_tree *const subtree);
 	void dissectRawData(tvbuff_t *const buffer, proto_tree *subtree, const int32_t offset);
 
+	static const char *const ifNameMagicStr = "magic";
+	static tvbuff_t *ifNameMagic = nullptr;
+
 	static int32_t ettN5305ATransact = -1;
 	static int32_t ettTransactFlags = -1;
 	static int32_t ettLPString = -1;
