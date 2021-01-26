@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 
 
 	QApplication noxgui{argc, argv};
+	QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
 	Nox::gui::ui::MainWindow nox{};
 	nox.show();
