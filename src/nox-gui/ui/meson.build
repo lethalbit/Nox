@@ -11,7 +11,7 @@ noxgui_srcs += files([
 
 ])
 
-noxgui_ui = files([
+noxgui_ui += files([
 	# Global Windows
 	'main_window.ui',
 

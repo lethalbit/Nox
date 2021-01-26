@@ -7,12 +7,18 @@ noxgui_deps = [
 ]
 
 
+noxgui_ui = files([])
+noxgui_moc = files([])
+noxgui_qrc = files([])
+
+
 noxgui_srcs = files([
 	'nox-gui.cc',
 ])
 
 subdir('include')
 
+subdir('models')
 subdir('i18n')
 subdir('qrc')
 subdir('ui')

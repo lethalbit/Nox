@@ -1,4 +1,4 @@
-noxgui_qrc = files([
+noxgui_qrc += files([
 	'nox_gui.qrc'
 ])
 
